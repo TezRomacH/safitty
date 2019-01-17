@@ -3,7 +3,6 @@ from .types import Storage, Key
 
 
 class Safitty:
-    _STATUS_NULL = -1
     _STATUS_OKAY = 0
     _STATUS_STORAGE_IS_NONE = 1
     _STATUS_KEY_IS_NONE = 2
