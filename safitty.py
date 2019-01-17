@@ -101,9 +101,6 @@ class Safitty:
         if strategy not in Safitty._ALL_STRATEGIES:
             raise ValueError(f'Strategy must be on of {Safitty._ALL_STRATEGIES}. Got {strategy}')
 
-        if len(keys) == 0:
-            _status, value = Safitty._inner_get(storage, None)
-
         value = storage
         _status = Safitty._STATUS_OKAY
         previous_value = value
@@ -114,6 +111,8 @@ class Safitty:
                     previous_value = value
             else:
                 break
+        else:
+            _status, value = Safitty._inner_get(storage, None)
 
         if _status != Safitty._STATUS_OKAY and strategy == Safitty._STRATEGY_LAST_VALUE:
             return previous_value
