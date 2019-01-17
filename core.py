@@ -1,8 +1,5 @@
-from typing import Any, Optional, Dict, Union, List, Tuple
-
-
-Storage = Union[Dict[str, Any], List[Any]]
-Key = Union[str, int]
+from typing import Any, Optional, Tuple
+from .types import Storage, Key
 
 
 class Safitty:
@@ -51,6 +48,21 @@ class Safitty:
             return Safitty._STATUS_WRONG_STORAGE_TYPE, result
 
         return status, result
+
+    @staticmethod
+    def _need_last_value_strategy(_status: int, _value: Optional[Any], _strategy: str):
+        check_strategy = _strategy == Safitty._STRATEGY_LAST_VALUE
+        return check_strategy and (_status != Safitty._STATUS_OKAY or _value is None)
+
+    @staticmethod
+    def _need_missing_key_strategy(_status: int, _value: Optional[Any], _strategy: str):
+        check_strategy = _strategy == Safitty._STRATEGY_MISSING_KEY
+        return check_strategy and _status == Safitty._STATUS_MISSING_KEY
+
+    @staticmethod
+    def _need_default_strategy(_status: int, _value: Optional[Any], _strategy: str):
+        check_strategy = _strategy == Safitty._STRATEGY_ON_FINAL
+        return check_strategy and _value is None
 
     @staticmethod
     def get(
@@ -104,23 +116,25 @@ class Safitty:
         value = storage
         _status = Safitty._STATUS_OKAY
         previous_value = value
-        for key in keys:
+
+        if len(keys) == 0:
+            _status, value = Safitty._inner_get(storage, None)
+
+        for i, key in enumerate(keys):
             if _status == Safitty._STATUS_OKAY:
                 _status, value = Safitty._inner_get(value, key)
                 if value is not None:
                     previous_value = value
             else:
                 break
-        else:
-            _status, value = Safitty._inner_get(storage, None)
 
-        if _status != Safitty._STATUS_OKAY and strategy == Safitty._STRATEGY_LAST_VALUE:
+        if Safitty._need_last_value_strategy(_status, value, strategy):
             return previous_value
 
-        if _status == Safitty._STATUS_MISSING_KEY and strategy == Safitty._STRATEGY_MISSING_KEY:
+        if Safitty._need_missing_key_strategy(_status, value, strategy):
             return default
 
-        if value is None and strategy == Safitty._STRATEGY_ON_FINAL:
+        if Safitty._need_default_strategy(_status, value, strategy):
             return default
 
         return value
