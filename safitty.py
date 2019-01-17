@@ -2,6 +2,7 @@ from typing import Any, Optional, Dict, Union, List, Tuple
 
 
 Storage = Union[Dict[str, Any], List[Any]]
+Key = Union[str, int]
 
 
 class Safitty:
@@ -21,7 +22,7 @@ class Safitty:
     _ALL_STRATEGIES = [_STRATEGY_MISSING_KEY, _STRATEGY_ON_FINAL, _STRATEGY_LAST_VALUE]
 
     @staticmethod
-    def _inner_get(_storage: Storage, _key: Union[str, int]) -> Tuple[int, Optional[Any]]:
+    def _inner_get(_storage: Storage, _key: Optional[Key]) -> Tuple[int, Optional[Any]]:
         status: int = Safitty._STATUS_OKAY
         result: Optional[Any] = None
 
@@ -54,8 +55,7 @@ class Safitty:
     @staticmethod
     def get(
             storage: Optional[Storage],
-            key: Union[str, int],
-            *keys: Union[str, int],
+            *keys: Key,
             strategy: str = "final",
             default: Optional[Any] = None
     ) -> Optional[Any]:
@@ -101,7 +101,8 @@ class Safitty:
         if strategy not in Safitty._ALL_STRATEGIES:
             raise ValueError(f'Strategy must be on of {Safitty._ALL_STRATEGIES}. Got {strategy}')
 
-        keys = [key] + list(keys)
+        if len(keys) == 0:
+            _status, value = Safitty._inner_get(storage, None)
 
         value = storage
         _status = Safitty._STATUS_OKAY
