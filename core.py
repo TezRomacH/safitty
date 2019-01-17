@@ -50,6 +50,18 @@ class Safitty:
         return status, result
 
     @staticmethod
+    def _need_last_value_strategy(_status: int, _strategy: str):
+        return _status != Safitty._STATUS_OKAY and _strategy == Safitty._STRATEGY_LAST_VALUE
+
+    @staticmethod
+    def _need_missing_key_strategy(_status: int, _strategy: str):
+        return _status == Safitty._STATUS_MISSING_KEY and _strategy == Safitty._STRATEGY_MISSING_KEY
+
+    @staticmethod
+    def _need_default_strategy(_value: Optional[Any], _strategy: str):
+        return _value is None and _strategy == Safitty._STRATEGY_ON_FINAL
+
+    @staticmethod
     def get(
             storage: Optional[Storage],
             *keys: Key,
@@ -113,13 +125,13 @@ class Safitty:
             else:
                 break
 
-        if _status != Safitty._STATUS_OKAY and strategy == Safitty._STRATEGY_LAST_VALUE:
+        if Safitty._need_last_value_strategy(_status, strategy):
             return previous_value
 
-        if _status == Safitty._STATUS_MISSING_KEY and strategy == Safitty._STRATEGY_MISSING_KEY:
+        if Safitty._need_last_value_strategy(_status, strategy):
             return default
 
-        if value is None and strategy == Safitty._STRATEGY_ON_FINAL:
+        if Safitty._need_last_value_strategy(value, strategy):
             return default
 
         return value
