@@ -5,7 +5,7 @@ Designed with a focus on the security of `get`/`set` operations for deep-nested 
 ## Installation
 Currently only submodule installation is available
 ```bash
-git submodule add https://github.com/TezRomacH/safitty
+git submodule add https://github.com/TezRomacH/safitty.git safitty
 ```
 
 ## Features
