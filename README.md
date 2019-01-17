@@ -1,5 +1,5 @@
 # Safitty
-Safitty is a wrapper on JSON/YAML configs on Python.
+Safitty is a wrapper on JSON/YAML configs for Python.
 Designed with a focus on the security of `get`/`set` operations for deep-nested dictionaries and lists.
 
 ## Installation
