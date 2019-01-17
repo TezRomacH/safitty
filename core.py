@@ -1,8 +1,5 @@
-from typing import Any, Optional, Dict, Union, List, Tuple
-
-
-Storage = Union[Dict[str, Any], List[Any]]
-Key = Union[str, int]
+from typing import Any, Optional, Tuple
+from .types import Storage, Key
 
 
 class Safitty:
