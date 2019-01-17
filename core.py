@@ -61,6 +61,7 @@ class Safitty:
     def _need_missing_key_strategy(_status: int, _value: Optional[Any], _strategy: str):
         check_strategy = _strategy == Safitty._STRATEGY_MISSING_KEY
         check_status = _status in Safitty._WRONG_KEY_STATUSES
+
         return check_strategy and check_status
 
     @staticmethod
@@ -117,34 +118,63 @@ class Safitty:
         if strategy not in Safitty._ALL_STRATEGIES:
             raise ValueError(f'Strategy must be on of {Safitty._ALL_STRATEGIES}. Got {strategy}')
 
-        value = storage
+        result = storage
         _status = Safitty._STATUS_OKAY
-        previous_value = value
+        previous_value = result
 
         if len(keys) == 0:
-            _status, value = Safitty._inner_get(storage, None)
+            _status, result = Safitty._inner_get(storage, None)
 
         for i, key in enumerate(keys):
             if _status == Safitty._STATUS_OKAY:
-                _status, value = Safitty._inner_get(value, key)
-                if value is not None:
-                    previous_value = value
+                _status, result = Safitty._inner_get(result, key)
+                if result is not None:
+                    previous_value = result
             else:
                 break
 
-        if Safitty._need_last_value_strategy(_status, value, strategy):
+        if Safitty._need_last_value_strategy(_status, result, strategy):
             return previous_value
 
-        if Safitty._need_missing_key_strategy(_status, value, strategy):
+        if Safitty._need_missing_key_strategy(_status, result, strategy):
             return default
 
-        if Safitty._need_default_strategy(_status, value, strategy):
+        if Safitty._need_default_strategy(_status, result, strategy):
             return default
 
-        return value
+        return result
 
     @staticmethod
-    def set(storage: Optional[Storage], value: Any, *keys: Key, strategy: str = 'none') -> None:
+    def _inner_set(_storage: Storage, value: Any, _key: Optional[Key], list_default: Any = None) -> int:
+        if _storage is None:
+            return Safitty._STATUS_STORAGE_IS_NONE
+
+        if _key is None:
+            return Safitty._STATUS_KEY_IS_NONE
+
+        if not (isinstance(_key, str) or isinstance(_key, int)):
+            return Safitty._STATUS_WRONG_KEY_TYPE
+
+        if hasattr(_storage, '__setitem__'):
+            if isinstance(_storage, list) and isinstance(_key, int):
+                if 0 <= _key:
+                    length = len(_storage)
+                    if _key >= length:
+                        extend_length = _key - length + 1
+                        _storage.extend([list_default] * extend_length)
+                else:
+                    return Safitty._STATUS_MISSING_KEY
+
+            try:
+                _storage[_key] = value
+                return Safitty._STATUS_OKAY
+            except:
+                return Safitty._STATUS_EXCEPTION_RAISED
+        else:
+            return Safitty._STATUS_WRONG_STORAGE_TYPE
+
+    @staticmethod
+    def set(storage: Optional[Storage], value: Any, *keys: Key, strategy: str = 'none') -> Any:
         """
 
         :param storage:
@@ -153,10 +183,15 @@ class Safitty:
         :param strategy:
         :return:
         """
-        value = storage
-        _status = Safitty._STATUS_OKAY
-        previous_value = value
+        _storage = storage
+        _get_status = Safitty._STATUS_OKAY
+        previous_value = _storage
 
         for key in keys:
-            _status, value = Safitty._inner_get(value, key)
-        pass
+            _get_status, _storage = Safitty._inner_get(_storage, key)
+            if _storage is not None:
+                previous_value = _storage
+            else:
+                _set_status = Safitty._inner_set(previous_value, value, key)
+
+        return
