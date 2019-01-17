@@ -51,15 +51,18 @@ class Safitty:
 
     @staticmethod
     def _need_last_value_strategy(_status: int, _value: Optional[Any], _strategy: str):
-        return _status != Safitty._STATUS_OKAY and _strategy == Safitty._STRATEGY_LAST_VALUE
+        check_strategy = _strategy == Safitty._STRATEGY_LAST_VALUE
+        return check_strategy and (_status != Safitty._STATUS_OKAY or _value is None)
 
     @staticmethod
     def _need_missing_key_strategy(_status: int, _value: Optional[Any], _strategy: str):
-        return _status == Safitty._STATUS_MISSING_KEY and _strategy == Safitty._STRATEGY_MISSING_KEY
+        check_strategy = _strategy == Safitty._STRATEGY_MISSING_KEY
+        return check_strategy and _status == Safitty._STATUS_MISSING_KEY
 
     @staticmethod
     def _need_default_strategy(_status: int, _value: Optional[Any], _strategy: str):
-        return _value is None and _strategy == Safitty._STRATEGY_ON_FINAL
+        check_strategy = _strategy == Safitty._STRATEGY_ON_FINAL
+        return check_strategy and _value is None
 
     @staticmethod
     def get(
@@ -117,7 +120,7 @@ class Safitty:
         if len(keys) == 0:
             _status, value = Safitty._inner_get(storage, None)
 
-        for key in keys:
+        for i, key in enumerate(keys):
             if _status == Safitty._STATUS_OKAY:
                 _status, value = Safitty._inner_get(value, key)
                 if value is not None:
