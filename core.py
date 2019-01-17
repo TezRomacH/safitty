@@ -11,6 +11,8 @@ class Safitty:
     _STATUS_WRONG_STORAGE_TYPE = 5
     _STATUS_EXCEPTION_RAISED = 6
 
+    _WRONG_KEY_STATUSES = [_STATUS_KEY_IS_NONE, _STATUS_MISSING_KEY, _STATUS_WRONG_KEY_TYPE]
+
     _STRATEGY_MISSING_KEY = "missing_key"
     _STRATEGY_ON_FINAL = "final"
     _STRATEGY_LAST_VALUE = "last_value"
@@ -51,12 +53,15 @@ class Safitty:
     @staticmethod
     def _need_last_value_strategy(_status: int, _value: Optional[Any], _strategy: str):
         check_strategy = _strategy == Safitty._STRATEGY_LAST_VALUE
-        return check_strategy and (_status != Safitty._STATUS_OKAY or _value is None)
+        check_status = _status != Safitty._STATUS_OKAY or _value is None
+
+        return check_strategy and check_status
 
     @staticmethod
     def _need_missing_key_strategy(_status: int, _value: Optional[Any], _strategy: str):
         check_strategy = _strategy == Safitty._STRATEGY_MISSING_KEY
-        return check_strategy and _status == Safitty._STATUS_MISSING_KEY
+        check_status = _status in Safitty._WRONG_KEY_STATUSES
+        return check_strategy and check_status
 
     @staticmethod
     def _need_default_strategy(_status: int, _value: Optional[Any], _strategy: str):
@@ -137,3 +142,21 @@ class Safitty:
             return default
 
         return value
+
+    @staticmethod
+    def set(storage: Optional[Storage], value: Any, *keys: Key, strategy: str = 'none') -> None:
+        """
+
+        :param storage:
+        :param value:
+        :param keys:
+        :param strategy:
+        :return:
+        """
+        value = storage
+        _status = Safitty._STATUS_OKAY
+        previous_value = value
+
+        for key in keys:
+            _status, value = Safitty._inner_get(value, key)
+        pass
