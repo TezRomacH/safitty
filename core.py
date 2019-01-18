@@ -195,3 +195,13 @@ class Safitty:
                 _set_status = Safitty._inner_set(previous_value, value, key)
 
         return
+
+
+def safe_get(
+        storage: Optional[Storage],
+        *keys: Key,
+        strategy: str = "final",
+        default: Optional[Any] = None
+) -> Optional[Any]:
+    return Safitty.get(storage, *keys, strategy=strategy, default=default)
+
