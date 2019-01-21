@@ -41,14 +41,14 @@ transforms:
 Maybe it's located at your project folder or you receive it from a server.
 For now we want to load the config and get some of the nested keys 
 ```python
-from safitty import Safitty
+import safitty as sf
 import yaml
 
 
 with open("path/to/config.yml") as stream:
     config = yaml.load(stream)
     
-param = Safitty.get(config, 'paths', 'images')
+param = sf.safe_get(config, 'paths', 'images')
 # param == 'images/'
 ```
 
@@ -74,31 +74,31 @@ IndexError: list index out of range
 
 Solution here is to use Saffity:
 ```python
->>> Safitty.get(config, 'transforms', 2, 'params', 'fill')
+>>> sf.safe_get(config, 'transforms', 2, 'params', 'fill')
 # None
 
->>> Safitty.get(config, 'transforms', 1, 'params', 'fill')
+>>> sf.safe_get(config, 'transforms', 1, 'params', 'fill')
 3
 
->>> Safitty.get(config, 'transforms', 2, 'values', 'fill', default=42)
+>>> sf.safe_get(config, 'transforms', 2, 'values', 'fill', default=42)
 42
 ```
 
 With Safitty you'll not be scared about nested depth
 ```python
->>> Safitty.get(config, 'transforms', 1, 'params', 'fill', 'what', 'if', 'we', 'go', 'deeper')
+>>> sf.safe_get(config, 'transforms', 1, 'params', 'fill', 'what', 'if', 'we', 'go', 'deeper')
 # None
 
->>> Safitty.get(config, 'transforms', 3, "wrong_key", 55, 'params', 'go', 'deeper', default="This is default value")
+>>> sf.safe_get(config, 'transforms', 3, "wrong_key", 55, 'params', 'go', 'deeper', default="This is default value")
 This is default value
 ```
 
 Safitty provides several strategies for using the `default` param.
 ```python
->>> Safitty.get(config, 'transforms', 0, 'values', strategy='missing_key', default=42)
+>>> sf.safe_get(config, 'transforms', 0, 'values', strategy='missing_key', default=42)
 42
 
->>> Safitty.get(config, 'transforms', 0, 'values', strategy='last_value', default=42)
+>>> sf.safe_get(config, 'transforms', 0, 'values', strategy='last_value', default=42)
 {"name": "Normalize", "function": "ToTensor", "params": None}
 ```
 1. For strategy `final`, it returns `default` if the final result on applying keys is None. Safitty uses it by default
@@ -107,18 +107,18 @@ Safitty provides several strategies for using the `default` param.
 
 Note the difference for `final` and `missing_key` strategies.
 ```python
->>> Safitty.get(config, 'transforms', 0, 'params', default='No value')
+>>> sf.safe_get(config, 'transforms', 0, 'params', default='No value')
 No value
 
->>> Safitty.get(config, 'transforms', 0, 'params', strategy='missing_key', default='No value')
+>>> sf.safe_get(config, 'transforms', 0, 'params', strategy='missing_key', default='No value')
 # return None, because there were not not-existing keys
 
 # But if we make a mistake in keys 
->>> Safitty.get(config, 'transforms', 23, 'params', strategy='missing_key', default='No value')
+>>> sf.safe_get(config, 'transforms', 23, 'params', strategy='missing_key', default='No value')
 No value
 
 # or
->>> Safitty.get(config, 'transforms', 0, 'values', strategy='missing_key', default='No value')
+>>> sf.safe_get(config, 'transforms', 0, 'values', strategy='missing_key', default='No value')
 No value
 
 ```

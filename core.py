@@ -1,4 +1,6 @@
 from typing import Any, Optional, Tuple
+import copy
+
 from .types import Storage, Key
 
 
@@ -145,15 +147,20 @@ class Safitty:
         return result
 
     @staticmethod
-    def _inner_set(_storage: Storage, value: Any, _key: Optional[Key], list_default: Any = None) -> int:
+    def _inner_set(
+            _storage: Storage,
+            value: Any,
+            _key: Optional[Key],
+            list_default: Any = None
+    ) -> Tuple[int, Optional[Storage]]:
         if _storage is None:
-            return Safitty._STATUS_STORAGE_IS_NONE
+            return Safitty._STATUS_STORAGE_IS_NONE, None
 
         if _key is None:
-            return Safitty._STATUS_KEY_IS_NONE
+            return Safitty._STATUS_KEY_IS_NONE, None
 
         if not (isinstance(_key, str) or isinstance(_key, int)):
-            return Safitty._STATUS_WRONG_KEY_TYPE
+            return Safitty._STATUS_WRONG_KEY_TYPE, None
 
         if hasattr(_storage, '__setitem__'):
             if isinstance(_storage, list) and isinstance(_key, int):
@@ -163,18 +170,24 @@ class Safitty:
                         extend_length = _key - length + 1
                         _storage.extend([list_default] * extend_length)
                 else:
-                    return Safitty._STATUS_MISSING_KEY
+                    return Safitty._STATUS_MISSING_KEY, None
 
             try:
                 _storage[_key] = value
-                return Safitty._STATUS_OKAY
+                return Safitty._STATUS_OKAY, _storage
             except:
-                return Safitty._STATUS_EXCEPTION_RAISED
+                return Safitty._STATUS_EXCEPTION_RAISED, None
         else:
-            return Safitty._STATUS_WRONG_STORAGE_TYPE
+            return Safitty._STATUS_WRONG_STORAGE_TYPE, None
 
     @staticmethod
-    def set(storage: Optional[Storage], value: Any, *keys: Key, strategy: str = 'none') -> Any:
+    def set(
+            storage: Optional[Storage],
+            value: Any,
+            *keys: Key,
+            inplace: bool = False,
+            strategy: str = 'none'
+    ) -> Optional[Storage]:
         """
 
         :param storage:
@@ -183,18 +196,16 @@ class Safitty:
         :param strategy:
         :return:
         """
-        _storage = storage
+        _storage = copy.deepcopy(storage)
         _get_status = Safitty._STATUS_OKAY
         previous_value = _storage
 
         for key in keys:
-            _get_status, _storage = Safitty._inner_get(_storage, key)
+            _set_status, _storage = Safitty._inner_set(previous_value, value, key)
             if _storage is not None:
                 previous_value = _storage
-            else:
-                _set_status = Safitty._inner_set(previous_value, value, key)
 
-        return
+        return _storage
 
 
 def safe_get(
@@ -205,3 +216,6 @@ def safe_get(
 ) -> Optional[Any]:
     return Safitty.get(storage, *keys, strategy=strategy, default=default)
 
+
+def safe_set():
+    pass
