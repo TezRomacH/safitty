@@ -125,17 +125,17 @@ No value
 
 ```
 
-Saffity provides `apply_fn` params. If it's not `None`, the result will be applied to this type or function.
+Saffity provides `apply` params. If it's not `None`, the result will be applied to this type or function.
 
 ```python
 >>> from pathlib import Path
->>> sf.safe_get(config, 'paths', 'images', apply_fn=Path)
+>>> sf.safe_get(config, 'paths', 'images', apply=Path)
 PosixPath('important/path/to/images/')
 
 ```
 
 ```python
->>> sf.safe_get(config, 'status', apply_fn=bool)
+>>> sf.safe_get(config, 'status', apply=bool)
 True
 
 ```
@@ -144,7 +144,7 @@ Lambdas are also supported
 
 ```python
 NOT_FOUND = 404
->>> sf.safe_get(config, 'status', apply_fn=lambda x: x != NOT_FOUND)
+>>> sf.safe_get(config, 'status', apply=lambda x: x != NOT_FOUND)
 
 True
 

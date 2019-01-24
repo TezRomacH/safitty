@@ -72,13 +72,13 @@ class Safitty:
         return check_strategy and _value is None
 
     @staticmethod
-    def _need_apply(_status: int, _value: Optional[Any], apply_fn: Optional[Apply]) -> bool:
-        return (_value is not None) and (apply_fn is not None)
+    def _need_apply(_status: int, _value: Optional[Any], apply: Optional[Apply]) -> bool:
+        return (_value is not None) and (apply is not None)
 
     @staticmethod
-    def _apply(_value: Any, apply_fn: Apply):
+    def _apply(_value: Any, apply: Apply):
         try:
-            return apply_fn(_value)
+            return apply(_value)
         except:
             return None
 
@@ -88,31 +88,39 @@ class Safitty:
             *keys: Key,
             strategy: str = "final",
             default: Optional[Any] = None,
-            apply_fn: Optional[Apply] = None
+            apply: Optional[Apply] = None
     ) -> Optional[Any]:
         """
         Allows you to safely retrieve values from nested dictionaries of any depth.
         Examples:
+            >>> import safitty as sf
             >>> config = {
-                "top": {
-                    "nested_1": [
+                    "greetings": [
                         {"hello": "world"},
                         {"hi": "there"},
                     ],
-                    "nested_2": { "some_string": "some_value" }
-                }}
+                    "storage": { "some_string": "some_value" },
+                    "status": 200
+                }
 
-            >>> Safitty.get(config, "nested_1",  1, "hi")
+            >>> sf.safe_get(config, "greetings",  1, "hi")
                 "there"
 
-            >>> Safitty.get(config, "nested_1", 0)
+            >>> sf.safe_get(config, "greetings", 0)
                 {"hi": "there"}
 
-            >>>  Safitty.get(config, "nested_1",  2, "hi")
+            >>> sf.safe_get(config, "greetings",  2, "hi") # Note the wrong index
                 None
 
-            >>> Safitty.get(config, "nested_2", "no", "key", "at", 1, "all", 4)
+            >>> sf.safe_get(config, "storage", "no", "key", "at", 1, "all", 4)
                 None
+
+            >>> sf.safe_get(config, "storage", "no", "key", "at", 1, "all", 4, default="It's safe and simple")
+                It's safe and simple
+
+            >>> NOT_FOUND = 404
+            >>> sf.safe_get(config, "status", apply=lambda x: x != NOT_FOUND)
+                True
         :param storage:
             Dictionary or list with nested dictionaries. Usually it's a configuration file (yaml of json)
         :param key:
@@ -126,7 +134,7 @@ class Safitty:
                 - last_value: Returns last available nested value. It doesn't use `default` param
         :param default:
             Default value used for :strategy: param
-        :param apply_fn:
+        :param apply:
             If not None, applies this type or function to the result
         :return:
         """
@@ -158,8 +166,8 @@ class Safitty:
         if Safitty._need_default_strategy(_status, result, strategy):
             return default
 
-        if Safitty._need_apply(_status, result, apply_fn):
-            return Safitty._apply(result, apply_fn)
+        if Safitty._need_apply(_status, result, apply):
+            return Safitty._apply(result, apply)
 
         return result
 
@@ -230,9 +238,9 @@ def safe_get(
         *keys: Key,
         strategy: str = "final",
         default: Optional[Any] = None,
-        apply_fn: Optional[Apply] = None
+        apply: Optional[Apply] = None
 ) -> Optional[Any]:
-    return Safitty.get(storage, *keys, strategy=strategy, default=default, apply_fn=apply_fn)
+    return Safitty.get(storage, *keys, strategy=strategy, default=default, apply=apply)
 
 
 def safe_set():
