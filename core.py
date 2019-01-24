@@ -1,7 +1,7 @@
 from typing import Any, Optional, Tuple
 import copy
 
-from .types import Storage, Key
+from .types import Storage, Key, Apply
 
 
 class Safitty:
@@ -53,30 +53,42 @@ class Safitty:
         return status, result
 
     @staticmethod
-    def _need_last_value_strategy(_status: int, _value: Optional[Any], _strategy: str):
+    def _need_last_value_strategy(_status: int, _value: Optional[Any], _strategy: str) -> bool:
         check_strategy = _strategy == Safitty._STRATEGY_LAST_VALUE
         check_status = _status != Safitty._STATUS_OKAY or _value is None
 
         return check_strategy and check_status
 
     @staticmethod
-    def _need_missing_key_strategy(_status: int, _value: Optional[Any], _strategy: str):
+    def _need_missing_key_strategy(_status: int, _value: Optional[Any], _strategy: str) -> bool:
         check_strategy = _strategy == Safitty._STRATEGY_MISSING_KEY
         check_status = _status in Safitty._WRONG_KEY_STATUSES
 
         return check_strategy and check_status
 
     @staticmethod
-    def _need_default_strategy(_status: int, _value: Optional[Any], _strategy: str):
+    def _need_default_strategy(_status: int, _value: Optional[Any], _strategy: str) -> bool:
         check_strategy = _strategy == Safitty._STRATEGY_ON_FINAL
         return check_strategy and _value is None
+
+    @staticmethod
+    def _need_apply(_status: int, _value: Optional[Any], apply_fn: Optional[Apply]) -> bool:
+        return (_value is not None) and (apply_fn is not None)
+
+    @staticmethod
+    def _apply(_value: Any, apply_fn: Apply):
+        try:
+            return apply_fn(_value)
+        except:
+            return None
 
     @staticmethod
     def get(
             storage: Optional[Storage],
             *keys: Key,
             strategy: str = "final",
-            default: Optional[Any] = None
+            default: Optional[Any] = None,
+            apply_fn: Optional[Apply] = None
     ) -> Optional[Any]:
         """
         Allows you to safely retrieve values from nested dictionaries of any depth.
@@ -114,6 +126,8 @@ class Safitty:
                 - last_value: Returns last available nested value. It doesn't use `default` param
         :param default:
             Default value used for :strategy: param
+        :param apply_fn:
+            If not None, applies this type or function to the result
         :return:
         """
 
@@ -143,6 +157,9 @@ class Safitty:
 
         if Safitty._need_default_strategy(_status, result, strategy):
             return default
+
+        if Safitty._need_apply(_status, result, apply_fn):
+            return Safitty._apply(result, apply_fn)
 
         return result
 
@@ -212,9 +229,10 @@ def safe_get(
         storage: Optional[Storage],
         *keys: Key,
         strategy: str = "final",
-        default: Optional[Any] = None
+        default: Optional[Any] = None,
+        apply_fn: Optional[Apply] = None
 ) -> Optional[Any]:
-    return Safitty.get(storage, *keys, strategy=strategy, default=default)
+    return Safitty.get(storage, *keys, strategy=strategy, default=default, apply_fn=apply_fn)
 
 
 def safe_set():

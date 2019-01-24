@@ -20,12 +20,14 @@ Suppose you have a configuration file looks like:
 ```yaml
 verbose: false
 
+status: 1
+
 paths:
   jsons:
     - first
     - second
     - third
-  images: images/
+  images: important/path/to/images/
   
 transforms:
   - name: Normalize
@@ -49,7 +51,7 @@ with open("path/to/config.yml") as stream:
     config = yaml.load(stream)
     
 param = sf.safe_get(config, 'paths', 'images')
-# param == 'images/'
+# param == 'important/path/to/images/'
 ```
 
 Python's dict will throw an error if we try to get a non-existing path. Or it will turn into a disgusting construction.
@@ -98,7 +100,7 @@ Safitty provides several strategies for using the `default` param.
 >>> sf.safe_get(config, 'transforms', 0, 'values', strategy='missing_key', default=42)
 42
 
->>> sf.safe_get(config, 'transforms', 0, 'values', strategy='last_value', default=42)
+>>> sf.safe_get(config 'transforms', 0, 'values', strategy='last_value', default=42)
 {"name": "Normalize", "function": "ToTensor", "params": None}
 ```
 1. For strategy `final`, it returns `default` if the final result on applying keys is None. Safitty uses it by default
@@ -122,3 +124,29 @@ No value
 No value
 
 ```
+
+Saffity provides `apply_fn` params. If it's not `None`, the result will be applied to this type or function.
+
+```python
+>>> from pathlib import Path
+>>> sf.safe_get(config, 'paths', 'images', apply_fn=Path)
+PosixPath('important/path/to/images/')
+
+```
+
+```python
+>>> sf.safe_get(config, 'status', apply_fn=bool)
+True
+
+```
+
+Lambdas are also supported
+
+```python
+NOT_FOUND = 404
+>>> sf.safe_get(config, 'status', apply_fn=lambda x: x != NOT_FOUND)
+
+True
+
+```
+
