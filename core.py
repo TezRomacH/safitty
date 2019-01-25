@@ -157,6 +157,9 @@ class Safitty:
             else:
                 break
 
+        if Safitty._need_apply(_status, result, apply):
+            result = Safitty._apply(result, apply)
+
         if Safitty._need_last_value_strategy(_status, result, strategy):
             return previous_value
 
@@ -165,9 +168,6 @@ class Safitty:
 
         if Safitty._need_default_strategy(_status, result, strategy):
             return default
-
-        if Safitty._need_apply(_status, result, apply):
-            return Safitty._apply(result, apply)
 
         return result
 
