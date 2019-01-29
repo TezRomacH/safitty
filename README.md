@@ -150,3 +150,29 @@ True
 
 ```
 
+With `transform` you can easily initialize your class from config
+
+```python
+
+transform = sf.safe_get(
+    config, 'transforms', 0,
+    default={},
+    transform = lambda params: YourAmazingClass(**params)
+    )
+
+```
+
+More advanced
+```python
+import safitty as sf
+
+augmentations = []
+
+for transform in sf.safe_get(config, 'transforms', default=[]):
+    function = ALL_FUNCTIONS[sf.safe_get(transform, 'name', default="Identity")]
+    
+    aug = sf.safe_get(transform, 'params', default={}, transform=function)
+    
+    augmentations.append(aug)
+```
+
