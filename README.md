@@ -105,7 +105,8 @@ Safitty provides several strategies for using the `default` param.
 ```
 1. For strategy `final`, it returns `default` if the final result on applying keys is None. Safitty uses it by default
 1. For strategy `missing_key`, it returns `default` only if some key in keys doesn't exist in config.
-1. Strategy `last_value` returns last non null value after applying the keys
+1. Strategy `last_value` returns last non null value if exists
+1. Strategy `last_container` returns last non null container if exists
 
 Note the difference for `final` and `missing_key` strategies.
 ```python
@@ -125,17 +126,17 @@ No value
 
 ```
 
-Saffity provides `apply` params. If it's not `None`, the result will be applied to this type or function.
+Saffity provides `transform` params. If it's not `None`, the result will be applied to this type or function.
 
 ```python
 >>> from pathlib import Path
->>> sf.safe_get(config, 'paths', 'images', apply=Path)
+>>> sf.safe_get(config, 'paths', 'images', transform=Path)
 PosixPath('important/path/to/images/')
 
 ```
 
 ```python
->>> sf.safe_get(config, 'status', apply=bool)
+>>> sf.safe_get(config, 'status', transform=bool)
 True
 
 ```
@@ -144,7 +145,7 @@ Lambdas are also supported
 
 ```python
 NOT_FOUND = 404
->>> sf.safe_get(config, 'status', apply=lambda x: x != NOT_FOUND)
+>>> sf.safe_get(config, 'status', transform=lambda x: x != NOT_FOUND)
 
 True
 
