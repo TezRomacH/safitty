@@ -1,4 +1,7 @@
 # Safitty
+[![Pipi version](https://img.shields.io/pypi/v/safitty.svg?colorB=blue)](https://pypi.org/project/safitty/)
+[![License](https://img.shields.io/github/license/TezRomacH/safitty.svg)](LICENSE)
+
 Safitty is a wrapper on JSON/YAML configs for Python.
 Designed with a focus on the security of `get`/`set` operations for deep-nested dictionaries and lists.
 
