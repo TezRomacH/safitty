@@ -1,5 +1,5 @@
 # Safitty
-[![Pipi version](https://img.shields.io/pypi/v/safitty.svg)](https://pypi.org/project/safitty/)
+[![Pipi version](https://img.shields.io/pypi/v/safitty.svg?colorB=blue)](https://pypi.org/project/safitty/)
 [![License](https://img.shields.io/github/license/TezRomacH/safitty.svg)](LICENSE)
 
 Safitty is a wrapper on JSON/YAML configs for Python.
