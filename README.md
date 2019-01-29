@@ -38,6 +38,14 @@ transforms:
     params:
       fill: 3
       padding_mode: reflect
+
+reader:
+  need_reader: True
+
+  params:
+    width: 512
+    height: 521
+    grayscale: True
 ```
 Maybe it's located at your project folder or you receive it from a server.
 For now we want to load the config and get some of the nested keys 
@@ -150,15 +158,16 @@ True
 
 ```
 
-With `transform` you can easily initialize your class from config
+With `apply` you can easily unpack values from config to your class.
+As `transform` the parameter applies the result but unpacks it (pass `*result` to a function/type  if `result` is a list or **result if `result` is a dict)
 
 ```python
 
-transform = sf.safe_get(
-    config, 'transforms', 0,
-    default={},
-    transform = lambda params: YourAmazingClass(**params)
-    )
+transform = sf.safe_get(config, 'transforms', 0, apply=YourAmazingClass)
+
+# same for longer version
+
+transform = sf.safe_get(config, 'transforms', 0, transform= lambda param: YourAmazingClass(**param))
 
 ```
 
@@ -171,7 +180,7 @@ augmentations = []
 for transform in sf.safe_get(config, 'transforms', default=[]):
     function = ALL_FUNCTIONS[sf.safe_get(transform, 'name', default="Identity")]
     
-    aug = sf.safe_get(transform, 'params', default={}, transform=function)
+    aug = sf.safe_get(transform, 'params', default={}, apply=function)
     
     augmentations.append(aug)
 ```

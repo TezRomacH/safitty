@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple, List
+from typing import Any, Optional, Tuple, List, Type, Dict
 import copy
 
 from .types import Storage, Key, Transform
@@ -24,90 +24,64 @@ class Strategy:
     
     ALL = [MISSING_KEY, ON_FINAL, LAST_VALUE, LAST_CONTAINER]
 
-
-class Result:
-    def __init__(
-            self,
-            value: Optional[Storage],
-            status: int,
-            last_value: Optional[Storage],
-            last_container: Optional[Storage],
-            last_value_key_id: int,
-            last_container_key_id: int
-    ):
-        self.value = value
-        self.status = status
-        self.last_value = last_value
-        self.last_container = last_container
-        self.last_value_key_id = last_value_key_id
-        self.last_container_key_id = last_container_key_id
+# Checkers
 
 
-def _is_container(_storage: Storage) -> bool:
-    return hasattr(_storage, '__setitem__')
+def is_container(storage: Storage) -> bool:
+    return hasattr(storage, '__setitem__')
 
 
-def _make_container(_key: Key) -> Storage:
-    if isinstance(_key, int):
-        return [None] * _key
+def make_container(key: Key) -> Storage:
+    if isinstance(key, int):
+        return [None] * key
     else:
-        return {_key: {}}
+        return {key: {}}
 
 
-def _need_last_value_strategy(_status: int, _value: Optional[Any], _strategy: str) -> bool:
-    check_strategy = _strategy == Strategy.LAST_VALUE
-    check_status = _status != Status.OKAY or _value is None
-
-    return check_strategy and check_status
-
-
-def _need_last_container_strategy(_status: int, _value: Optional[Any], _strategy: str) -> bool:
-    check_strategy = _strategy == Strategy.LAST_CONTAINER
-    check_status = _status != Status.OKAY or _value is None
-
-    return check_strategy
-
-
-def _need_missing_key_strategy(_status: int, _value: Optional[Any], _strategy: str) -> bool:
-    check_strategy = _strategy == Strategy.MISSING_KEY
-    check_status = _status in Status.WRONG_KEY
+def need_last_value(status: int, value: Optional[Any], strategy: str) -> bool:
+    check_strategy = strategy == Strategy.LAST_VALUE
+    check_status = status != Status.OKAY or value is None
 
     return check_strategy and check_status
 
 
-def _need_default_strategy(_status: int, _value: Optional[Any], _strategy: str) -> bool:
-    check_strategy = _strategy == Strategy.ON_FINAL
-    return check_strategy and _value is None
+def need_default(status: int, value: Optional[Any], strategy: str) -> bool:
+    strategy_final = (strategy == Strategy.ON_FINAL) and value is None
+    strategy_missing_key = (strategy == Strategy.MISSING_KEY) and (status in Status.WRONG_KEY)
+
+    return strategy_final or strategy_missing_key
 
 
-def _need_transform(_status: int, _value: Optional[Any], transform: Optional[Transform]) -> bool:
-    return (_value is not None) and (transform is not None)
+def need_apply_function(value: Optional[Any], function: Optional[Transform]) -> bool:
+    return (value is not None) and (function is not None)
+
+# Getters
 
 
-def _get_value(_storage: Storage, _key: Optional[Key]) -> Tuple[int, Optional[Any]]:
+def get_value(storage: Storage, key: Optional[Key]) -> Tuple[int, Optional[Any]]:
+    if storage is None:
+        return Status.STORAGE_IS_NONE, None
+
+    if key is None:
+        return Status.KEY_IS_NONE, storage
+
+    if not (isinstance(key, str) or isinstance(key, int)):
+        return Status.WRONG_KEY_TYPE, storage
+
     status: int = Status.OKAY
     result: Optional[Any] = None
 
-    if _storage is None:
-        return Status.STORAGE_IS_NONE, result
-
-    if _key is None:
-        return Status.KEY_IS_NONE, result
-
-    if not (isinstance(_key, str) or isinstance(_key, int)):
-        return Status.WRONG_KEY_TYPE, result
-
-    if hasattr(_storage, '__getitem__'):
-        if isinstance(_storage, list) and isinstance(_key, int):
-            status = Status.OKAY if 0 <= _key < len(_storage) else Status.MISSING_KEY
+    if hasattr(storage, '__getitem__'):
+        if isinstance(storage, list) and isinstance(key, int):
+            status = Status.OKAY if 0 <= key < len(storage) else Status.MISSING_KEY
         else:
-            status = Status.OKAY if _key in _storage else Status.MISSING_KEY
+            status = Status.OKAY if key in storage else Status.MISSING_KEY
 
         if status == Status.OKAY:
             try:
-                value = _storage[_key]
+                value = storage[key]
                 result = value
-            except:
+            except Exception:
                 status = Status.EXCEPTION_RAISED
     else:
         return Status.WRONG_STORAGE_TYPE, result
@@ -115,83 +89,47 @@ def _get_value(_storage: Storage, _key: Optional[Key]) -> Tuple[int, Optional[An
     return status, result
 
 
-def _transform(_value: Any, transform: Transform):
-    try:
-        return transform(_value)
-    except:
-        return None
-
-
-def __get(
+def get_multi_keys(
         storage: Optional[Storage],
         *keys: Key
-) -> Result:
+) -> Dict[str, Any]:
 
-    result = storage
-    _status = Status.OKAY
-    previous_value = result
+    value = storage
+    status = Status.OKAY
+    last_value = value
 
-    previous_container = {}
+    last_container = {}
 
     last_value_key_id = 0
     last_container_key_id = 0
 
     if len(keys) == 0:
-        _status, result = _get_value(storage, None)
+        status, value = get_value(storage, None)
 
     for i, key in enumerate(keys):
-        if _status == Status.OKAY:
-            _status, result = _get_value(result, key)
-            if result is not None:
-                previous_value = result
+        if status == Status.OKAY:
+            status, value = get_value(value, key)
+            if value is not None:
+                last_value = value
                 last_value_key_id += 1
 
-                if _is_container(result):
-                    previous_container = result
+                if is_container(value):
+                    last_container = value
                     last_container_key_id += 1
         else:
             break
 
-    _result = Result(
-        result,
-        _status,
-        previous_value,
-        previous_container,
-        last_value_key_id,
-        last_container_key_id
-    )
-    return _result
+    result = {
+        "value": value,
+        "status": status,
 
+        "last_value": last_value,
+        "last_value_key_id": last_value_key_id,
 
-def _inner_set(
-        _storage: Storage,
-        _key: Optional[Key],
-        value: Any,
-        list_default: Any = None
-) -> Tuple[int, Optional[Storage]]:
-    if _storage is None:
-        return Status.STORAGE_IS_NONE, None
-
-    if _key is None:
-        return Status.KEY_IS_NONE, None
-
-    if not (isinstance(_key, str) or isinstance(_key, int)):
-        return Status.WRONG_KEY_TYPE, None
-
-    if isinstance(_storage, list) and isinstance(_key, int):
-        if 0 <= _key:
-            length = len(_storage)
-            if _key >= length:
-                extend_length = _key - length + 1
-                _storage.extend([list_default] * extend_length)
-        else:
-            return Status.MISSING_KEY, None
-
-    try:
-        _storage[_key] = value
-        return Status.OKAY, _storage
-    except:
-        return Status.EXCEPTION_RAISED, None
+        "last_container": last_container,
+        "last_container_key_id": last_container_key_id
+    }
+    return result
 
 
 def safe_get(
@@ -199,13 +137,14 @@ def safe_get(
         *keys: Key,
         strategy: str = "final",
         default: Optional[Any] = None,
-        transform: Optional[Transform] = None
+        transform: Optional[Transform] = None,
+        apply: Optional[Type] = None
 ) -> Optional[Any]:
     """
         Allows you to safely retrieve values from nested dictionaries of any depth.
         Examples:
             >>> import safitty as sf
-            >>> config = {
+            config = {
                     "greetings": [
                         {"hello": "world"},
                         {"hi": "there"},
@@ -243,35 +182,80 @@ def safe_get(
                 - final: Returns a default value if the final result is None
                 - missing_key: Returns a default value only is some of the keys is missing
                 - last_value: Returns last available nested value. It doesn't use `default` param
-        :param transform:
-            If not None, applies this type or function to the result
         :param default:
             Default value used for :strategy: param
+        :param transform:
+            If not None, applies this type or function to the result
+        :param apply:
+            As ``transform`` the parameter applies the result but unpacks it
+            (pass ``*result`` to a function/type  if ``result`` is a list
+            or **result if ``result`` is a dict)
         :return:
             Value or None
         """
     if strategy not in Strategy.ALL:
         raise ValueError(f'Strategy must be on of {Strategy.ALL}. Got {strategy}')
 
-    result: Result = __get(storage, *keys)
+    result = get_multi_keys(storage, *keys)
 
-    value = result.value
-    status = result.status
+    value = result['value']
+    status = result['status']
 
-    if _need_transform(status, value, transform):
-        value = _transform(value, transform)
+    if strategy == Strategy.LAST_CONTAINER:
+        value = result["last_container"]
 
-    if _need_last_container_strategy(status, value, strategy):
-        value = result.last_container
+    if need_last_value(status, value, strategy):
+        value = result["last_value"]
 
-    if _need_last_value_strategy(status, value, strategy):
-        value = result.last_value
-
-    if _need_missing_key_strategy(status, value, strategy) \
-            or _need_default_strategy(status, value, strategy):
+    if need_default(status, value, strategy):
         value = default
 
+    try:
+        if need_apply_function(value, apply):
+            if isinstance(value, list):
+                value = apply(*value)
+            elif isinstance(value, dict):
+                value = apply(**value)
+
+        elif need_apply_function(value, transform):
+            value = transform(value)
+    except Exception:
+        pass
+
     return value
+
+# Setters
+
+
+def _inner_set(
+        _storage: Storage,
+        _key: Optional[Key],
+        value: Any,
+        list_default: Any = None
+) -> Tuple[int, Optional[Storage]]:
+    if _storage is None:
+        return Status.STORAGE_IS_NONE, None
+
+    if _key is None:
+        return Status.KEY_IS_NONE, None
+
+    if not (isinstance(_key, str) or isinstance(_key, int)):
+        return Status.WRONG_KEY_TYPE, None
+
+    if isinstance(_storage, list) and isinstance(_key, int):
+        if 0 <= _key:
+            length = len(_storage)
+            if _key >= length:
+                extend_length = _key - length + 1
+                _storage.extend([list_default] * extend_length)
+        else:
+            return Status.MISSING_KEY, None
+
+    try:
+        _storage[_key] = value
+        return Status.OKAY, _storage
+    except Exception:
+        return Status.EXCEPTION_RAISED, None
 
 
 def safe_set(
@@ -295,14 +279,14 @@ def safe_set(
 
     _storage = copy.deepcopy(storage)
 
-    if not _is_container(_storage):
+    if not is_container(_storage):
         key = keys[0]
-        _storage = _make_container(key)
+        _storage = make_container(key)
 
-    result = __get(_storage, *keys)
+    result = get_multi_keys(_storage, *keys)
 
-    container = result.last_container
-    unused_keys: List[Key] = list(keys[result.last_container_key_id:])
+    container = result["last_container"]
+    unused_keys: List[Key] = list(keys[result["last_container_key_id"]:])
 
     previous_container = container
     for key in unused_keys:
@@ -310,7 +294,7 @@ def safe_set(
         if status == Status.OKAY:
             previous_container = container
         else:
-            container = _make_container(key)
+            container = make_container(key)
             _inner_set(previous_container, key, container)
 
     return _storage
