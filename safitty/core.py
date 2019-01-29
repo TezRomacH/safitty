@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple, List, NamedTuple
+from typing import Any, Optional, Tuple, List
 import copy
 
 from .types import Storage, Key, Transform
