@@ -89,7 +89,7 @@ def get_value(storage: Storage, key: Optional[Key]) -> Tuple[int, Optional[Any]]
     return status, result
 
 
-def get_multi_keys(
+def get_by_keys(
         storage: Optional[Storage],
         *keys: Key
 ) -> Dict[str, Any]:
@@ -196,7 +196,7 @@ def safe_get(
     if strategy not in Strategy.ALL:
         raise ValueError(f'Strategy must be on of {Strategy.ALL}. Got {strategy}')
 
-    result = get_multi_keys(storage, *keys)
+    result = get_by_keys(storage, *keys)
 
     value = result['value']
     status = result['status']
@@ -283,7 +283,7 @@ def safe_set(
         key = keys[0]
         _storage = make_container(key)
 
-    result = get_multi_keys(_storage, *keys)
+    result = get_by_keys(_storage, *keys)
 
     container = result["last_container"]
     unused_keys: List[Key] = list(keys[result["last_container_key_id"]:])
