@@ -212,7 +212,7 @@ def safe_get(
 
     try:
         if need_apply_function(value, apply):
-            if isinstance(value, list):
+            if isinstance(value, list) or isinstance(value, tuple):
                 value = apply(*value)
             elif isinstance(value, dict):
                 value = apply(**value)
