@@ -162,7 +162,7 @@ True
 ```
 
 With `apply` you can easily unpack values from config to your class.
-As `transform` the parameter applies the result but unpacks it (pass `*result` to a function/type  if `result` is a list or **result if `result` is a dict)
+As `transform` the parameter applies the result but unpacks it (pass `*result` to a function/type  if `result` is a list or `**result` if `result` is a dict)
 
 ```python
 
