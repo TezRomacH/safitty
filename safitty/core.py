@@ -65,14 +65,14 @@ def get_value(storage: Storage, key: Optional[Key]) -> Tuple[int, Optional[Any]]
     if key is None:
         return Status.KEY_IS_NONE, storage
 
-    if not (isinstance(key, str) or isinstance(key, int)):
+    if not (isinstance(key, str) or isinstance(key, int) or isinstance(key, bool)):
         return Status.WRONG_KEY_TYPE, storage
 
     status: int = Status.OKAY
     result: Optional[Any] = None
 
     if hasattr(storage, '__getitem__'):
-        if isinstance(storage, list) and isinstance(key, int):
+        if (isinstance(storage, list) or isinstance(storage, tuple)) and isinstance(key, int):
             status = Status.OKAY if 0 <= key < len(storage) else Status.MISSING_KEY
         else:
             status = Status.OKAY if key in storage else Status.MISSING_KEY
