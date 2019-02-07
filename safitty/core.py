@@ -216,6 +216,8 @@ def safe_get(
                 value = apply(*value)
             elif isinstance(value, dict):
                 value = apply(**value)
+            else:
+                value = apply(value)
 
         elif need_apply_function(value, transform):
             value = transform(value)
