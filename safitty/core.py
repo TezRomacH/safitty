@@ -1,7 +1,7 @@
-from typing import Any, Optional, Tuple, List, Type, Dict
 import copy
+from typing import Dict, Optional, Tuple, List, Any, Type
 
-from .types import Storage, Key, Transform
+from .types import star, dstar, Storage, Transform, Key, Relative
 
 
 class Status:
@@ -55,6 +55,41 @@ def need_default(status: int, value: Optional[Any], strategy: str) -> bool:
 def need_apply_function(value: Optional[Any], function: Optional[Transform]) -> bool:
     return (value is not None) and (function is not None)
 
+
+def key_is_correct(key: Key) -> bool:
+    return isinstance(key, str) \
+           or isinstance(key, int) \
+           or isinstance(key, bool) \
+           or isinstance(key, Relative)
+
+
+def reformat_keys(keys: List[Key]) -> List[Key]:
+    result: List[Key] = []
+    relatives: List[Relative] = []
+
+    previous_is_key: bool = False
+    current_is_dstar: bool = False
+    for key in keys:
+        if isinstance(key, Relative):
+            if previous_is_key and current_is_dstar:
+                continue
+            if key == star():
+                relatives.append(key)
+            elif key == dstar():
+                current_is_dstar = True
+                relatives = [key]
+
+            previous_is_key = True
+        else:
+            if previous_is_key:
+                previous_is_key = False
+                current_is_dstar = False
+                result += relatives
+                relatives = []
+            result.append(key)
+
+    return result
+
 # Getters
 
 
@@ -65,7 +100,7 @@ def get_value(storage: Storage, key: Optional[Key]) -> Tuple[int, Optional[Any]]
     if key is None:
         return Status.KEY_IS_NONE, storage
 
-    if not (isinstance(key, str) or isinstance(key, int) or isinstance(key, bool)):
+    if not key_is_correct(key):
         return Status.WRONG_KEY_TYPE, storage
 
     status: int = Status.OKAY
@@ -91,7 +126,7 @@ def get_value(storage: Storage, key: Optional[Key]) -> Tuple[int, Optional[Any]]
 
 def get_by_keys(
         storage: Optional[Storage],
-        *keys: Key
+        keys: List[Key]
 ) -> Dict[str, Any]:
 
     value = storage
@@ -196,7 +231,8 @@ def safe_get(
     if strategy not in Strategy.ALL:
         raise ValueError(f'Strategy must be on of {Strategy.ALL}. Got {strategy}')
 
-    result = get_by_keys(storage, *keys)
+    keys = reformat_keys(keys)
+    result = get_by_keys(storage, keys)
 
     value = result['value']
     status = result['status']
@@ -285,7 +321,7 @@ def safe_set(
         key = keys[0]
         _storage = make_container(key)
 
-    result = get_by_keys(_storage, *keys)
+    result = get_by_keys(_storage, keys)
 
     container = result["last_container"]
     unused_keys: List[Key] = list(keys[result["last_container_key_id"]:])
