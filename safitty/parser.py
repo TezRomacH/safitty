@@ -15,7 +15,7 @@ import json
 import yaml
 from pydoc import locate
 
-from typing import List, Any, Type
+from typing import List, Any, Type, Optional
 from collections import OrderedDict
 from .types import Storage
 
@@ -156,3 +156,17 @@ def update_config_from_args(config: Storage, args: List[str]) -> Storage:
         config_[names[-1]] = value
 
     return updated_config
+
+
+def load_config_from_args(arguments: Optional[List[str]] = None) -> Storage:
+    """Parses command line arguments, loads config and updates it with unknown args
+    Args:
+        arguments (List[str], optional): arguments to parse, if None uses command line arguments
+    Returns:
+        (Storage): config dict with updated values from unknown args
+    Examples:
+        >>> load_config_from_args("-C examples/config.json --verbose=True:bool --paths/jsons/0:int=uno".split())
+    """
+    args, uargs = argparser().parse_known_args(args=arguments)
+    config = load_config(args.config, ordered=False)
+    return update_config_from_args(config, uargs)

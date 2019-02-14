@@ -156,8 +156,8 @@ def safe_get(
     """
         Allows you to safely retrieve values from nested dictionaries of any depth.
         Examples:
-            >>> import safitty as sf
-            config = {
+            >>> from safitty import safe_get
+            >>> config = {
                     "greetings": [
                         {"hello": "world"},
                         {"hi": "there"},
@@ -166,23 +166,23 @@ def safe_get(
                     "status": 200
                 }
 
-            >>> sf.safe_get(config, "greetings",  1, "hi")
+            >>> safe_get(config, "greetings",  1, "hi")
                 "there"
 
-            >>> sf.safe_get(config, "greetings", 0)
+            >>> safe_get(config, "greetings", 0)
                 {"hi": "there"}
 
-            >>> sf.safe_get(config, "greetings",  2, "hi") # Note the wrong index
+            >>> safe_get(config, "greetings",  2, "hi") # Note the wrong index
                 None
 
-            >>> sf.safe_get(config, "storage", "no", "key", "at", 1, "all", 4)
+            >>> safe_get(config, "storage", "no", "key", "at", 1, "all", 4)
                 None
 
-            >>> sf.safe_get(config, "storage", "no", "key", "at", 1, "all", 4, default="It's safe and simple")
+            >>> safe_get(config, "storage", "no", "key", "at", 1, "all", 4, default="It's safe and simple")
                 It's safe and simple
 
             >>> NOT_FOUND = 404
-            >>> sf.safe_get(config, "status", transform=lambda x: x != NOT_FOUND)
+            >>> safe_get(config, "status", transform=lambda x: x != NOT_FOUND)
                 True
         :param storage:
             Dictionary or list with nested dictionaries. Usually it's a configuration file (yaml of json)
