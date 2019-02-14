@@ -1,34 +1,12 @@
 import copy
-from typing import Dict, Optional, Tuple, List, Any, Type
+from typing import Optional, Tuple
 
-from .types import star, dstar, Storage, Transform, Key, Relative
+from .types import *
 
-
-class Status:
-    OKAY = 0
-    STORAGE_IS_NONE = 1
-    KEY_IS_NONE = 2
-    MISSING_KEY = 3
-    WRONG_KEY_TYPE = 4
-    WRONG_STORAGE_TYPE = 5
-    EXCEPTION_RAISED = 6
-
-    WRONG_KEY = [KEY_IS_NONE, MISSING_KEY, WRONG_KEY_TYPE]
-    
-    
-class Strategy:
-    MISSING_KEY = "missing_key"
-    ON_FINAL = "final"
-    LAST_VALUE = "last_value"
-    LAST_CONTAINER = "last_container"
-    
-    ALL = [MISSING_KEY, ON_FINAL, LAST_VALUE, LAST_CONTAINER]
 
 # Checkers
-
-
 def is_container(storage: Storage) -> bool:
-    return hasattr(storage, '__setitem__')
+    return hasattr(storage, "__setitem__")
 
 
 def make_container(key: Key) -> Storage:
@@ -106,7 +84,7 @@ def get_value(storage: Storage, key: Optional[Key]) -> Tuple[int, Optional[Any]]
     status: int = Status.OKAY
     result: Optional[Any] = None
 
-    if hasattr(storage, '__getitem__'):
+    if hasattr(storage, "__getitem__"):
         if (isinstance(storage, list) or isinstance(storage, tuple)) and isinstance(key, int):
             status = Status.OKAY if 0 <= key < len(storage) else Status.MISSING_KEY
         else:
@@ -229,13 +207,13 @@ def safe_get(
             Value or None
         """
     if strategy not in Strategy.ALL:
-        raise ValueError(f'Strategy must be on of {Strategy.ALL}. Got {strategy}')
+        raise ValueError(f"Strategy must be on of {Strategy.ALL}. Got {strategy}")
 
     keys = reformat_keys(keys)
     result = get_by_keys(storage, keys)
 
-    value = result['value']
-    status = result['status']
+    value = result["value"]
+    status = result["status"]
 
     if strategy == Strategy.LAST_CONTAINER:
         value = result["last_container"]
@@ -301,7 +279,7 @@ def safe_set(
         *keys: Key,
         value: Any,
         inplace: bool = False,
-        strategy: str = 'none'
+        strategy: str = "none"
 ) -> Optional[Storage]:
     """
 

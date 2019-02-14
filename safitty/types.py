@@ -2,8 +2,8 @@ from typing import Dict, Union, List, Any, Type, Callable
 
 
 class Relative:
-    def __init__(self, pat: str = '*'):
-        assert pat in ['*', '**']
+    def __init__(self, pat: str = "*"):
+        assert pat in ["*", "**"]
         self.pat = pat
 
     def __str__(self) -> str:
@@ -16,8 +16,8 @@ class Relative:
         return self.pat == other.pat
 
 
-__relative_star = Relative('*')
-__relative_dstar = Relative('**')
+__relative_star = Relative("*")
+__relative_dstar = Relative("**")
 
 
 def star():
@@ -26,6 +26,27 @@ def star():
 
 def dstar():
     return __relative_dstar
+
+
+class Status:
+    OKAY = 0
+    STORAGE_IS_NONE = 1
+    KEY_IS_NONE = 2
+    MISSING_KEY = 3
+    WRONG_KEY_TYPE = 4
+    WRONG_STORAGE_TYPE = 5
+    EXCEPTION_RAISED = 6
+
+    WRONG_KEY = [KEY_IS_NONE, MISSING_KEY, WRONG_KEY_TYPE]
+
+
+class Strategy:
+    MISSING_KEY = "missing_key"
+    ON_FINAL = "final"
+    LAST_VALUE = "last_value"
+    LAST_CONTAINER = "last_container"
+
+    ALL = [MISSING_KEY, ON_FINAL, LAST_VALUE, LAST_CONTAINER]
 
 
 Storage = Union[Dict[str, Any], List[Any]]

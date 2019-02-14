@@ -1,0 +1,36 @@
+{
+  "verbose": false,
+  "status": 1,
+
+  "paths": {
+    "jsons": ["first", "second", "third"],
+    "images": "important/path/to/images/"
+  },
+
+  "transforms": [
+    {
+      "name": "Normalize",
+      "function": "ToTensor",
+      "params": true
+    },
+    {
+      "name": "Padding",
+      "function": "Pad",
+      "params": {
+        "asd": "fuck",
+        "fill": 3,
+        "padding_mode": "reflect"
+      }
+    }
+  ],
+
+  "reader": {
+    "need_reader": true,
+
+    "params": {
+      "width": 512,
+      "height": 521,
+      "grayscale": true
+    }
+  }
+}

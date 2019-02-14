@@ -14,13 +14,13 @@ class ImageReader:
         return f"({self.height, self.width}), grayscale = {self.grayscale}"
 
 
-if __name__ == '__main__':
-    with open('config.yml') as stream:
+if __name__ == "__main__":
+    with open("config.yml") as stream:
         config = yaml.load(stream)
 
-    path = sf.safe_get(config, 'paths', 'images', default="images/", transform=Path)
+    path = sf.safe_get(config, "paths", "images", default="images/", transform=Path)
     print(type(path))  # pathlib.PosixPath
 
-    if sf.safe_get(config, 'reader', 'need_reader', default=False):
-        reader = sf.safe_get(config, 'reader', 'params', apply=ImageReader)
+    if sf.safe_get(config, "reader", "need_reader", default=False):
+        reader = sf.safe_get(config, "reader", "params", apply=ImageReader)
         print(reader)  # ((521, 512)), grayscale = True
