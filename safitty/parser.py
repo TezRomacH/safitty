@@ -1,9 +1,10 @@
 """
-This functions are originally located at `Catalyst. Reproducible and fast DL & RL`
-
-https://github.com/catalyst-team/catalyst
+This functions are originally located at `Catalyst. Reproducible and fast DL & RL`_
 
 Some methods were formatted and simplified.
+
+.. _`Catalyst. Reproducible and fast DL & RL`:
+    https://github.com/catalyst-team/catalyst
 """
 
 import os
