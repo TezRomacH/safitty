@@ -51,12 +51,19 @@ def type_from_str(dtype: str) -> Type:
     return locate(dtype)
 
 
-def argparser() -> argparse.ArgumentParser:
-    """Creates typical argument parser with `--config` argument
+def argparser(**argparser_kwargs) -> argparse.ArgumentParser:
+    """Creates typical argument parser with ``--config`` argument
+    Args:
+        **argparser_kwargs: Arguments for ``ArgumentParser.__init__``, optional.
+            See more at `Argparse docs`_
     Returns:
-        (ArgumentParser): parser with `--config` argument
+        (ArgumentParser): parser with ``--config`` argument
+
+    .. _`Argparse docs`:
+        https://docs.python.org/3/library/argparse.html#argumentparser-objects
     """
-    parser_ = argparse.ArgumentParser()
+    argparser_kwargs = argparser_kwargs
+    parser_ = argparse.ArgumentParser(**argparser_kwargs)
 
     parser_.add_argument(
         "-C", "--config",
@@ -72,11 +79,11 @@ def load_config(config_path: str, ordered: bool = False) -> Storage:
     """Loads config by giving path. Supports YAML and JSON files.
     Args:
         config_path (str): path to config file (YAML or JSON)
-        ordered (bool): decide if the config should be loaded as `OrderedDict`
+        ordered (bool): decide if the config should be loaded as ``OrderedDict``
     Returns:
         (Storage): Config
     Raises:
-        Exception: if path `config_path` doesn't exists or file format is not YAML or JSON
+        Exception: if path ``config_path`` doesn't exists or file format is not YAML or JSON
     """
     if not os.path.exists(config_path):
         raise Exception(f"Path '{config_path}' doesn't exist!")
@@ -96,11 +103,11 @@ def load_config(config_path: str, ordered: bool = False) -> Storage:
 
 
 def parse_content(value: str) -> Any:
-    """Parses strings `value:dtype` into typed value
+    """Parses strings ``value:dtype`` into typed value
     Args:
-        value (str): string with form `value:dtype` or `value`
+        value (str): string with form ``value:dtype`` or ``value``
     Returns:
-        (Any): value of type `dtype`, if `dtype` wasn't specified value will be parsed as string
+        (Any): value of type ``dtype``, if ``dtype`` wasn't specified value will be parsed as string
     Examples:
         >>> parse_content("True:bool")
         True # type is bool
@@ -131,7 +138,7 @@ def update_config_from_args(config: Storage, args: List[str]) -> Storage:
     """Updates configuration file with list of arguments
     Args:
         config (Storage): configuration dict
-        args (List[str]): list of arguments with form --key:dtype:value:dtype`
+        args (List[str]): list of arguments with form ``--key:dtype:value:dtype``
     Returns:
         (Storage): updated config
     """
