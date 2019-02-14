@@ -128,10 +128,12 @@ def parse_content(value: str) -> Any:
     else:
         value_content, value_type = content
 
-    if value_type == "str":
-        return value_content
-    else:
-        return type_from_str(value_type)(value_content)
+    result = value_content
+    value_type = type_from_str(value_type)
+    if value_type is not None:
+        result = value_type(value_content)
+
+    return result
 
 
 def update_config_from_args(config: Storage, args: List[str]) -> Storage:
