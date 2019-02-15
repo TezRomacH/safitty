@@ -9,13 +9,6 @@ def is_container(storage: Storage) -> bool:
     return hasattr(storage, "__setitem__")
 
 
-def make_container(key: Key) -> Storage:
-    if isinstance(key, int):
-        return [None] * key
-    else:
-        return {key: {}}
-
-
 def need_last_value(status: int, value: Optional[Any], strategy: str) -> bool:
     check_strategy = strategy == Strategy.LAST_VALUE
     check_status = status != Status.OKAY or value is None
@@ -104,14 +97,14 @@ def get_value(storage: Storage, key: Optional[Key]) -> Tuple[int, Optional[Any]]
 
 def get_by_keys(
         storage: Optional[Storage],
-        keys: List[Key]
+        *keys: Key
 ) -> Dict[str, Any]:
 
     value = storage
     status = Status.OKAY
     last_value = value
 
-    last_container = {}
+    last_container = storage
 
     last_value_key_id = 0
     last_container_key_id = 0
@@ -206,11 +199,11 @@ def safe_get(
         :return:
             Value or None
         """
-    if strategy not in Strategy.ALL:
-        raise ValueError(f"Strategy must be on of {Strategy.ALL}. Got {strategy}")
+    if strategy not in Strategy.ALL_FOR_GET:
+        raise ValueError(f"Strategy must be on of {Strategy.ALL_FOR_GET}. Got {strategy}")
 
     keys = reformat_keys(keys)
-    result = get_by_keys(storage, keys)
+    result = get_by_keys(storage, *keys)
 
     value = result["value"]
     status = result["status"]
@@ -240,36 +233,32 @@ def safe_get(
 
     return value
 
+
 # Setters
+def extend_container(container, key) -> Status:
+    if isinstance(container, list):
+        if isinstance(key, int):
+            length = len(container)
+            if key > length:
+                container.extend([None] * (key - length + 1))
+            return Status.OKAY
+        else:
+            return Status.WRONG_KEY_TYPE
+
+    return Status.OKAY
 
 
-def _inner_set(
-        _storage: Storage,
-        _key: Optional[Key],
-        value: Any,
-        list_default: Any = None
-) -> Tuple[int, Optional[Storage]]:
-    if _storage is None:
-        return Status.STORAGE_IS_NONE, None
-
-    if _key is None:
-        return Status.KEY_IS_NONE, None
-
-    if not (isinstance(_key, str) or isinstance(_key, int)):
+def set_into_container(container, current_key, next_key) -> Tuple[Status, Optional[Storage]]:
+    if isinstance(next_key, int):
+        default = [None] * (next_key + 1)
+    elif isinstance(next_key, str):
+        default = dict()
+    else:
         return Status.WRONG_KEY_TYPE, None
 
-    if isinstance(_storage, list) and isinstance(_key, int):
-        if 0 <= _key:
-            length = len(_storage)
-            if _key >= length:
-                extend_length = _key - length + 1
-                _storage.extend([list_default] * extend_length)
-        else:
-            return Status.MISSING_KEY, None
-
     try:
-        _storage[_key] = value
-        return Status.OKAY, _storage
+        container[current_key] = default
+        return Status.OKAY, container[current_key]
     except Exception:
         return Status.EXCEPTION_RAISED, None
 
@@ -278,40 +267,44 @@ def safe_set(
         storage: Optional[Storage],
         *keys: Key,
         value: Any,
-        inplace: bool = False,
-        strategy: str = "none"
+        inplace: bool = True,
+        strategy: str = "force"
 ) -> Optional[Storage]:
-    """
-
-    :param storage:
-    :param keys:
-    :param value:
-    :param inplace:
-    :param strategy:
-    :return:
-    """
     if len(keys) == 0:
-        return storage
+        return value
 
-    _storage = copy.deepcopy(storage)
+    if inplace:
+        updated_storage = storage
+    else:
+        updated_storage = copy.deepcopy(storage)
+    result = get_by_keys(updated_storage, *keys)
 
-    if not is_container(_storage):
-        key = keys[0]
-        _storage = make_container(key)
+    last_container_key_id = result['last_container_key_id']
+    unused_keys = list(keys[last_container_key_id:])
+    container = result['last_container']
 
-    result = get_by_keys(_storage, keys)
+    i = 0
+    is_okay = True
+    while i < len(unused_keys) - 1:
+        key = unused_keys[i]
+        next_key = unused_keys[i+1]
+        can_change = extend_container(container, key)
+        if can_change != Status.OKAY:
+            is_okay = False
+            break
+        can_update, next_container = set_into_container(container, key, next_key)
 
-    container = result["last_container"]
-    unused_keys: List[Key] = list(keys[result["last_container_key_id"]:])
-
-    previous_container = container
-    for key in unused_keys:
-        status, container = _inner_set(container, key, value)
-        if status == Status.OKAY:
-            previous_container = container
+        if can_update != Status.OKAY:
+            is_okay = False
+            break
         else:
-            container = make_container(key)
-            _inner_set(previous_container, key, container)
+            container = next_container
 
-    return _storage
+        i += 1
+
+    if is_okay:
+        key = unused_keys[-1]
+        container[key] = value
+
+    return updated_storage
 

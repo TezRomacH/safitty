@@ -1,5 +1,5 @@
 """
-This functions are originally located at `Catalyst. Reproducible and fast DL & RL`_
+These functions are originally located at `Catalyst. Reproducible and fast DL & RL`_
 
 Some methods were formatted and simplified.
 
@@ -10,6 +10,8 @@ Some methods were formatted and simplified.
 import os
 
 import argparse
+import re
+
 import copy
 import json
 import yaml
@@ -103,7 +105,8 @@ def load_config(config_path: str, ordered: bool = False) -> Storage:
 
 
 def parse_content(value: str) -> Any:
-    """Parses strings ``value:dtype`` into typed value
+    """Parses strings ``value:dtype`` into typed value. If you don't want to parse ``:`` as type
+        then wrap input with quotes
     Args:
         value (str): string with form ``value:dtype`` or ``value``
     Returns:
@@ -122,6 +125,11 @@ def parse_content(value: str) -> Any:
         >>> parse_content("1:float")
         1.0 # type is float
     """
+    quotes_wrap = """^["'][^ ].*[^ ]["']$"""
+    if re.match(quotes_wrap, value) is not None:
+        value_content = value[1:-1]
+        return value_content
+
     content = value.rsplit(":", 1)
     if len(content) == 1:
         value_content, value_type = content[0], "str"
@@ -153,9 +161,9 @@ def update_config_from_args(config: Storage, args: List[str]) -> Storage:
         value = parse_content(value)
         names = [parse_content(name) for name in names.split("/")]
 
-        # safe_set(updated_config, *names, value=value)
         config_ = updated_config
         # TODO: change to `safe_set`
+        #   updated_config = safe_set(updated_config, *names, value=value)
         for name in names[:-1]:
             if name not in config_:
                 config_[name] = {}
