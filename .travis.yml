@@ -34,4 +34,5 @@ jobs:
         distributions: sdist bdist_wheel
         on:
           branch: master
+          python: 3.6
 
