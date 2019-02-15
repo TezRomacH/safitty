@@ -6,51 +6,18 @@ Some methods were formatted and simplified.
 .. _`Catalyst. Reproducible and fast DL & RL`:
     https://github.com/catalyst-team/catalyst
 """
-
-import os
-
 import argparse
 import re
-
 import copy
+
+from pathlib import Path
 import json
 import yaml
-from pydoc import locate
 
 from typing import List, Any, Type, Optional, Dict
 from collections import OrderedDict
 from .types import Storage
-
-
-class OrderedLoader(yaml.Loader):
-    pass
-
-
-def construct_mapping(loader, node):
-    loader.flatten_mapping(node)
-    return OrderedDict(loader.construct_pairs(node))
-
-
-OrderedLoader.add_constructor(
-    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, construct_mapping
-)
-
-
-def type_from_str(dtype: str) -> Type:
-    """Returns type by giving string
-    Args:
-        dtype (str): string representation of type
-    Returns:
-        (Type): type
-    Examples:
-        >>> type_from_str("str")
-        str
-        >>> type_from_str("int")
-        int
-        >>> type(type_from_str("int"))
-        type
-    """
-    return locate(dtype)
+from pydoc import locate
 
 
 def argparser(**argparser_kwargs) -> argparse.ArgumentParser:
@@ -72,12 +39,26 @@ def argparser(**argparser_kwargs) -> argparse.ArgumentParser:
         type=str,
         required=True,
         help="Path to a config file (YAML or JSON)",
-        metavar="PATH"
+        metavar="{PATH}"
     )
     return parser_
 
 
-def load_config(config_path: str, ordered: bool = False) -> Storage:
+class OrderedLoader(yaml.Loader):
+    pass
+
+
+def construct_mapping(loader, node):
+    loader.flatten_mapping(node)
+    return OrderedDict(loader.construct_pairs(node))
+
+
+OrderedLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, construct_mapping
+)
+
+
+def load_config(path: str, ordered: bool = False) -> Storage:
     """Loads config by giving path. Supports YAML and JSON files.
     Args:
         config_path (str): path to config file (YAML or JSON)
@@ -87,21 +68,48 @@ def load_config(config_path: str, ordered: bool = False) -> Storage:
     Raises:
         Exception: if path ``config_path`` doesn't exists or file format is not YAML or JSON
     """
-    if not os.path.exists(config_path):
-        raise Exception(f"Path '{config_path}' doesn't exist!")
+    config_path = Path(path)
 
-    with open(config_path, "r") as stream:
-        if config_path.endswith("json"):
+    if not config_path.exists():
+        raise Exception(f"Path '{path}' doesn't exist!")
+
+    config = None
+    with config_path.open() as stream:
+        ext = config_path.suffix
+
+        if ext == ".json":
             object_pairs_hook = OrderedDict if ordered else None
-            config = json.load(stream, object_pairs_hook=object_pairs_hook)
+            file = "\n".join(stream.readlines())
+            if file != "":
+                config = json.loads(file, object_pairs_hook=object_pairs_hook)
 
-        elif config_path.endswith("yml"):
+        elif ext == ".yml":
             loader = OrderedLoader if ordered else yaml.Loader
             config = yaml.load(stream, loader)
         else:
-            raise Exception("Unknown file format")
+            raise Exception(f"Unknown file format '{ext}'")
+
+    if config is None:
+        return dict()
 
     return config
+
+
+def type_from_str(dtype: str) -> Type:
+    """Returns type by giving string
+    Args:
+        dtype (str): string representation of type
+    Returns:
+        (Type): type
+    Examples:
+        >>> type_from_str("str")
+        str
+        >>> type_from_str("int")
+        int
+        >>> type(type_from_str("int"))
+        type
+    """
+    return locate(dtype)
 
 
 def parse_content(value: str) -> Any:
@@ -118,6 +126,8 @@ def parse_content(value: str) -> Any:
         "True" # type is str
         >>> parse_content("True")
         "True" # type is str
+        >>> parse_content("'True:bool'")
+        'True:bool' # type is str
         >>> parse_content("some str")
         "some str" # type is str
         >>> parse_content("1:int")
