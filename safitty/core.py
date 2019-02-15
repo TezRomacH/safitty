@@ -144,60 +144,25 @@ def safe_get(
         strategy: str = "final",
         default: Optional[Any] = None,
         transform: Optional[Transform] = None,
-        apply: Optional[Type] = None
+        apply: Optional[Transform] = None
 ) -> Optional[Any]:
-    """
-        Allows you to safely retrieve values from nested dictionaries of any depth.
-        Examples:
-            >>> from safitty import safe_get
-            >>> config = {
-                    "greetings": [
-                        {"hello": "world"},
-                        {"hi": "there"},
-                    ],
-                    "storage": { "some_string": "some_value" },
-                    "status": 200
-                }
-
-            >>> safe_get(config, "greetings",  1, "hi")
-                "there"
-
-            >>> safe_get(config, "greetings", 0)
-                {"hi": "there"}
-
-            >>> safe_get(config, "greetings",  2, "hi") # Note the wrong index
-                None
-
-            >>> safe_get(config, "storage", "no", "key", "at", 1, "all", 4)
-                None
-
-            >>> safe_get(config, "storage", "no", "key", "at", 1, "all", 4, default="It's safe and simple")
-                It's safe and simple
-
-            >>> NOT_FOUND = 404
-            >>> safe_get(config, "status", transform=lambda x: x != NOT_FOUND)
-                True
-        :param storage:
-            Dictionary or list with nested dictionaries. Usually it's a configuration file (yaml of json)
-        :param keys:
-            Keys for the storage, Must be int or str
-        :param keys:
-            Various number of keys or indexes
-        :param strategy:
-            Must be one of
-                - final: Returns a default value if the final result is None
-                - missing_key: Returns a default value only is some of the keys is missing
-                - last_value: Returns last available nested value. It doesn't use `default` param
-        :param default:
-            Default value used for :strategy: param
-        :param transform:
-            If not None, applies this type or function to the result
-        :param apply:
-            As ``transform`` the parameter applies the result but unpacks it
+    """Getter for nested dictionaries/lists of any depth.
+    Args:
+        storage (Storage): The container for `get`. Usually it's a configuration file (yaml of json)
+        *keys (Key):  Keys for the storage, param list of int or str
+        strategy (str): Must be one of
+            - final: Returns a default value if the final result is None
+            - missing_key: Returns a default value only is some of the keys is missing
+            - last_value: Returns last available nested value. It doesn't use `default` param
+            - last_container:
+        default (Any):  Default value used for :strategy: param
+        transform (Transform): Either type or a function.
+            If this parameter is not None then applies it to the result value
+        apply (Transform): As ``transform`` the parameter applies the result but unpacks it
             (pass ``*result`` to a function/type  if ``result`` is a list
             or **result if ``result`` is a dict)
-        :return:
-            Value or None
+    Returns:
+            Any: The result value or ``default``
         """
     if strategy not in Strategy.ALL_FOR_GET:
         raise ValueError(f"Strategy must be on of {Strategy.ALL_FOR_GET}. Got {strategy}")
@@ -267,9 +232,18 @@ def safe_set(
         storage: Optional[Storage],
         *keys: Key,
         value: Any,
-        inplace: bool = True,
-        strategy: str = "force"
+        inplace: bool = True
 ) -> Optional[Storage]:
+    """Setter for nested dictionaries/lists of any depth
+    Args:
+        storage (Storage): The container that set into. Usually it's a configuration file (yaml of json)
+        *keys (Key):  Keys for the storage, param list of int or str
+        value (Any): The value to set into the storage
+        inplace (bool): If True set value inplace into the storage, otherwise don't change the ``storage``
+            params, returns only updated
+    Returns:
+        Storage: updated storage
+    """
     if len(keys) == 0:
         return value
 
