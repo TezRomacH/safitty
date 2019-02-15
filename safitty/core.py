@@ -1,7 +1,9 @@
 import copy
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Any, List, Dict
 
-from .types import *
+from safitty.types import Storage, Status, Strategy, \
+    Transform, Key, Relative, \
+    star, dstar
 
 
 # Checkers
@@ -281,4 +283,3 @@ def safe_set(
         container[key] = value
 
     return updated_storage
-

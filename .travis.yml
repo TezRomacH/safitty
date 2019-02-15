@@ -1,0 +1,53 @@
+group: travis_latest
+language: python
+cache: pip
+
+# safelist
+branches:
+  only:
+  - master
+  - dev
+  - gh-pages
+
+python:
+  - 3.6
+  - 3.7
+
+stages:
+  - Codestyle
+  - Deploy
+
+install:
+  pip install -r requirements.txt
+
+jobs:
+  include:
+    - stage: Codestyle
+      install: pip install flake8
+      script:
+        # stop the build if there are any unexpected flake8 issues
+        - flake8 . --count --ignore=E126,E226,E704,E731,W503,W504,F405
+          --max-complexity=16 --show-source --statistics --max-line-length=120
+
+    - stage: Deploy
+      name: "Pypi"
+
+      # PyPI Deployment: https://docs.travis-ci.com/user/deployment/pypi/
+      deploy:
+        provider: pypi
+
+        user: $PYPI_USER
+        # If password contains non alphanumeric characters
+        # https://github.com/travis-ci/dpl/issues/377
+        # pass it as secured variable
+        password: $PYPI_TOKEN
+        # otherwise, follow "How to encrypt the password": https://docs.travis-ci.com/user/encryption-keys/
+        # `travis encrypt deploy.password="password"`
+        #  secure: "secured_password"
+
+        skip_cleanup: true
+        skip_existing: true
+        distributions: "sdist bdist_wheel"
+
+        on:
+          tags: true

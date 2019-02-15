@@ -187,7 +187,7 @@ def update_config_from_args(config: Storage, args: List[str]) -> Storage:
 
 def load_config_from_args(
         arguments: Optional[List[str]] = None,
-        argparser_kwargs:  Optional[Dict] = None
+        argparser_kwargs: Optional[Dict] = None
 ) -> Storage:
     """Parses command line arguments, loads config and updates it with unknown args
     Args:

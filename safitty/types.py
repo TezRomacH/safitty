@@ -55,4 +55,3 @@ Storage = Union[Dict[str, Any], List[Any]]
 Key = Union[str, int, bool, Relative]
 
 Transform = Union[Type, Callable]
-
