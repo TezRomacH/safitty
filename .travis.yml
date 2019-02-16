@@ -1,38 +1,46 @@
 group: travis_latest
 language: python
 cache: pip
-
 python:
   - 3.6
-  - 3.7
+  -
 stages:
   - Codestyle
   - Test
   - Deploy
-install: pip install -r requirements.txt
+
+install: &requirements
+  pip install -r requirements.txt
+
 jobs:
   include:
-    - stage: Codestyle
-      install: pip install flake8
-      script:
-        - flake8 . --count --ignore=E126,E226,E704,E731,W503,W504,F405 --max-complexity=16
-          --show-source --statistics --max-line-length=120
-    - stage: Test
-      install:
-        - pip install -r requirements.txt
-        - pip install -U pytest
-      script:
-        - pytest
-    - stage: Deploy
-      deploy:
-        provider: pypi
-        user: $PYPI_USER
-        password:
-          secure: N6Pp1gd6lf2AjMq30tm24OpcHQx6FJcmbBypiJDMVVG1xIzl3eF+SMlGHPJmHcGuu7jxWvEqD3AxBxGX4R+TUoERC/VXfxnAeLZ5eZBgERV9r8fNypLTSO/cOJCqNuG7YNsRDSYUH2ugLj/ec+LPyC9DmcpKSMS8vARcPsoSqMVdlS5LugrygoA4Lv2ItuOLUYXm89p9jQJW5B5lJIJ+xuOFjbqVI40shtn6x8jh1CECJFJ1hdneM0+6ulYv7e0erSXnZ6s5h7+cnCK4h4UTiuHQ3xhIVBMo9UTPzZjNhDtoCOO104znOUsb3+5ZYeEBXYZwG0CEAIveSHlpoBDDUHmCAFL092qlMmCJyiJcJz/jnLI1/tkABhIKvSb4joPd85truZGFbIsJVSMDOKAZar0PngwwVndyZzd+xFcDeU53+DK7PYPzDicXQExV3wecBK3YvsIGR2+mYXQ1cwVdnC3bd5MGmKwDWtvBdApSQQj5ldiiOiVnrudjUIAfLYLI/Xq1EMxfbChDbCAxBzAFiZCyrPanx+aZLt8ecnQumbqHY9hs5WQ0r0V4EO5mhyzCWQ0pk07M8xpHEngFnizBQ3bORcUTBFLxZ5gKUp14n7aPQg2eiethkrAa3kSv1BPwVoE09TrrXZah3Rq9cC9Q3RQD5eNzL1Bz8jveYDJUbCE=
-        skip_cleanup: true
-        skip_existing: true
-        distributions: sdist bdist_wheel
-        on:
-          branch: master
-          python: 3.6
+  - stage: Codestyle
+    install: pip install flake8
+    script:
+    - flake8 . --count --ignore=E126,E226,E704,E731,W503,W504,F405 --max-complexity=16
+      --show-source --statistics --max-line-length=120
 
+  - stage: Test
+    install:
+    - *requirements
+    - pip install -U pytest
+    script:
+    - pytest
+
+  - stage: Deploy
+    script: true
+    deploy:
+      provider: pypi
+      user: "$PYPI_USER"
+      password:
+        secure: "QmIHUtu1LRrG/PlXCpEBVbORcVtme7K9qOoQ9U4g8kasCmYNBoaQWhPLsDQ4DGBl2YumPE1EEkuOBxYOxQwQoZvPCGUkTbFbW0UN/io6d42vKO5bTm8nVz1RqnP5QXfdbCoTVQZgL5hAqR5DaBQgSUQ9gmdLq+7ny6bR7tM0kefE3xWBYLNTbeBAwv7fbkG3OlEzQXxtFCkXLABEPYkIC4zxoJ9siiNdNWjvRbdeqKaXOUpEiUVrkkE5eSlL0NCGZWDquW+oZmhoHv985WoMeQ8isFCbUaDcvNQK9og8ws1Dw5CfkrsnwgzzNsYZPzsIiqyqulej1uNJVLJhG6UdKaxSMrVrrgKnVgpOvcyOq1pqDPopqXaf9RV5QyqFFXJRSJMqh4+Tpip4w/vck5xUBu47mzgt9Q7IzKLVdPNeBUBpILCbUOWyvLZcpTolziQYI3biNQe20d7RYWuqjv0dVABlC9ejF2Di8SSe58Y269JClLyZPWNOCdVmMuAP7+VWMIjeJ5TSyHrxncPKqW7CowJexi7NsworiYd6APIjTyfW5IcC0u/IAFpy56V8S0eSgGwR1X4L4kIXDs0nd24Mg75Pj7g3EtB2qBWq7EQSRXK2kNjBsOEUffnJtiQQ3nXN1qtWCQjzCWoWm534tpkAup0TwrjP8RkOrargHC9IsD8="
+
+      skip_cleanup: true
+      skip_existing: true
+      distributions: "sdist bdist_wheel"
+      on:
+        tags: true
+        python: 3.6
+env:
+  global:
+    secure: EHRHIL14hLC2mSU7F799jPUw3mT3frgljf/HOuhvJdSWT1V9aEjmyc7iMs+gNLa9V8fXHqeDHBAB0DUOX64auUWB52P58lt8UNubVrhIqq9Q1vm/eODVEfOKrLexh7PwIq++2h+x96jjhPS4cGdQ465Reg3tBCFalNffV0KkdVliGp7pjivHiOFlzRyIL8PsiFvq1TVmnPOnSEhL3CUXcvfsfrgnLuufR8BoV0+jtXUh6aHI9zbKILkPLO5w67t+nvCoNcRus5EiUfGWWG2HuIVAfPqSxa27Sgho3J+Oh5b3RCQ3QzAhUw6pMTr+uhsUW+Z4lovrOPtbvCwe+ZiK6JxLRRF1KxiBYwevJ7L6cIKYVz9fClhmouXqWbTLjdjc7ZWPBVaBsgPzaacaCx0j24quAU2zt/qI7SS8PWdhmSwtmbUbY7nowwcg6eIsCKZ2kJoml0lMzfYCVxZhc78RjC4XADaxCxaWjoTtVwzB2VvGDOkDf+p+itr7CqtGsuu1uXVpOMaOHmioOT2cSrVIn7NBYd62aXowV9bPTbrTZlph4aXRxODMVaapOxfXYHvqihMr8wxkFPB9pXUeUiFKlRPwOC+SDNPfCzj0CBGJmgcisk1FZ7jU+ZGqPWBENIJ56Oxfx6ys7bhyxvq4NqTw7HgTnoy1nUuykdCpGkCQqaE=
