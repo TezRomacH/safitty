@@ -19,6 +19,8 @@ from collections import OrderedDict
 from .types import Storage
 from pydoc import locate
 
+from safitty.core import safe_set
+
 
 def argparser(**argparser_kwargs) -> argparse.ArgumentParser:
     """Creates typical argument parser with ``--config`` argument
@@ -134,6 +136,10 @@ def parse_content(value: str) -> Any:
         1 # type is int
         >>> parse_content("1:float")
         1.0 # type is float
+        >>> parse_content("[1,2]:list")
+        [1, 2] # type is list
+        >>> parse_content("'[1,2]:list'")
+        '[1,2]:list' # type is str
     """
     quotes_wrap = """^["'][^ ].*[^ ]["']$"""
     if re.match(quotes_wrap, value) is not None:
@@ -147,9 +153,16 @@ def parse_content(value: str) -> Any:
         value_content, value_type = content
 
     result = value_content
-    value_type = type_from_str(value_type)
-    if value_type is not None:
-        result = value_type(value_content)
+
+    if value_type in ["set", "list", "dict", "frozenset"]:
+        try:
+            result = eval(f"{value_type}({value_content})")
+        except Exception:
+            result = value_content
+    else:
+        value_type = type_from_str(value_type)
+        if value_type is not None:
+            result = value_type(value_content)
 
     return result
 
@@ -171,16 +184,7 @@ def update_config_from_args(config: Storage, args: List[str]) -> Storage:
         value = parse_content(value)
         names = [parse_content(name) for name in names.split("/")]
 
-        config_ = updated_config
-        # TODO: change to `safe_set`
-        #   updated_config = safe_set(updated_config, *names, value=value)
-        for name in names[:-1]:
-            if name not in config_:
-                config_[name] = {}
-
-            config_ = config_[name]
-
-        config_[names[-1]] = value
+        updated_config = safe_set(updated_config, *names, value=value)
 
     return updated_config
 

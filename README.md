@@ -1,4 +1,5 @@
 # Safitty
+[![Build Status](https://travis-ci.com/TezRomacH/safitty.svg?branch=master)](https://travis-ci.com/TezRomacH/safitty)
 [![Pypi version](https://img.shields.io/pypi/v/safitty.svg?colorB=blue)](https://pypi.org/project/safitty/)
 [![Downloads](https://img.shields.io/pypi/dm/safitty.svg?style=flat)](https://pypi.org/project/safitty/)
 [![License](https://img.shields.io/github/license/TezRomacH/safitty.svg)](LICENSE)
