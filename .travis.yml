@@ -7,7 +7,7 @@ python:
   - 3.7
 stages:
   - Codestyle
-  - Tests
+  - Test
   - Deploy
 install: pip install -r requirements.txt
 jobs:
@@ -17,7 +17,7 @@ jobs:
       script:
         - flake8 . --count --ignore=E126,E226,E704,E731,W503,W504,F405 --max-complexity=16
           --show-source --statistics --max-line-length=120
-    - stage: Tests
+    - stage: Test
       install:
         - pip install -r requirements.txt
         - pip install -U pytest
