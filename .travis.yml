@@ -3,7 +3,7 @@ language: python
 cache: pip
 python:
   - 3.6
-  -
+
 stages:
   - Codestyle
   - Test
@@ -17,15 +17,15 @@ jobs:
   - stage: Codestyle
     install: pip install flake8
     script:
-    - flake8 . --count --ignore=E126,E226,E704,E731,W503,W504,F405 --max-complexity=16
-      --show-source --statistics --max-line-length=120
+      - flake8 . --count --ignore=E126,E226,E704,E731,W503,W504,F405 --max-complexity=16
+        --show-source --statistics --max-line-length=120
 
   - stage: Test
     install:
-    - *requirements
-    - pip install -U pytest
+      - *requirements
+      - pip install pytest
     script:
-    - pytest
+      - py.test tests/
 
   - stage: Deploy
     script: true
