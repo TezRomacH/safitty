@@ -71,7 +71,7 @@ def get_value(storage: Storage, key: Optional[Key]) -> Tuple[int, Optional[Any]]
         return Status.STORAGE_IS_NONE, None
 
     if key is None:
-        return Status.KEY_IS_NONE, storage
+        return Status.KEY_IS_NONE, None
 
     if not key_is_correct(key):
         return Status.WRONG_KEY_TYPE, storage
@@ -112,7 +112,7 @@ def get_by_keys(
     last_container_key_id = 0
 
     if len(keys) == 0:
-        status, value = get_value(storage, None)
+        status, value = Status.OKAY, storage
 
     for i, key in enumerate(keys):
         if status == Status.OKAY:
@@ -146,7 +146,8 @@ def safe_get(
         strategy: str = "final",
         default: Optional[Any] = None,
         transform: Optional[Transform] = None,
-        apply: Optional[Transform] = None
+        apply: Optional[Transform] = None,
+        raise_on_transforms: bool = False
 ) -> Optional[Any]:
     """Getter for nested dictionaries/lists of any depth.
     Args:
@@ -163,6 +164,7 @@ def safe_get(
         apply (Transform): As ``transform`` the parameter applies the result but unpacks it
             (pass ``*result`` to a function/type  if ``result`` is a list
             or **result if ``result`` is a dict)
+        raise_on_transforms (bool): if set as True raise an Exception after fail on ``transforms`` or ``apply``
     Returns:
             Any: The result value or ``default``
         """
@@ -196,7 +198,10 @@ def safe_get(
         elif need_apply_function(value, transform):
             value = transform(value)
     except Exception:
-        pass
+        if raise_on_transforms:
+            raise
+        else:
+            value = None
 
     return value
 

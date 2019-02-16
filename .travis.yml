@@ -31,9 +31,8 @@ jobs:
     script: true
     deploy:
       provider: pypi
-      user: "$PYPI_USER"
-      password:
-        secure: "QmIHUtu1LRrG/PlXCpEBVbORcVtme7K9qOoQ9U4g8kasCmYNBoaQWhPLsDQ4DGBl2YumPE1EEkuOBxYOxQwQoZvPCGUkTbFbW0UN/io6d42vKO5bTm8nVz1RqnP5QXfdbCoTVQZgL5hAqR5DaBQgSUQ9gmdLq+7ny6bR7tM0kefE3xWBYLNTbeBAwv7fbkG3OlEzQXxtFCkXLABEPYkIC4zxoJ9siiNdNWjvRbdeqKaXOUpEiUVrkkE5eSlL0NCGZWDquW+oZmhoHv985WoMeQ8isFCbUaDcvNQK9og8ws1Dw5CfkrsnwgzzNsYZPzsIiqyqulej1uNJVLJhG6UdKaxSMrVrrgKnVgpOvcyOq1pqDPopqXaf9RV5QyqFFXJRSJMqh4+Tpip4w/vck5xUBu47mzgt9Q7IzKLVdPNeBUBpILCbUOWyvLZcpTolziQYI3biNQe20d7RYWuqjv0dVABlC9ejF2Di8SSe58Y269JClLyZPWNOCdVmMuAP7+VWMIjeJ5TSyHrxncPKqW7CowJexi7NsworiYd6APIjTyfW5IcC0u/IAFpy56V8S0eSgGwR1X4L4kIXDs0nd24Mg75Pj7g3EtB2qBWq7EQSRXK2kNjBsOEUffnJtiQQ3nXN1qtWCQjzCWoWm534tpkAup0TwrjP8RkOrargHC9IsD8="
+      user: $PYPI_USER
+      password: $PYPI_PASS
 
       skip_cleanup: true
       skip_existing: true

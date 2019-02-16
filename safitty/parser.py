@@ -16,10 +16,10 @@ import yaml
 
 from typing import List, Any, Type, Optional, Dict
 from collections import OrderedDict
-from .types import Storage
 from pydoc import locate
 
-from safitty.core import safe_set
+from .core import safe_set
+from .types import Storage
 
 
 def argparser(**argparser_kwargs) -> argparse.ArgumentParser:
