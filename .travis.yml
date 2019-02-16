@@ -26,7 +26,7 @@ jobs:
     - stage: Deploy
       deploy:
         provider: pypi
-        user: TezRomacH
+        user: $PYPI_USER
         password:
           secure: N6Pp1gd6lf2AjMq30tm24OpcHQx6FJcmbBypiJDMVVG1xIzl3eF+SMlGHPJmHcGuu7jxWvEqD3AxBxGX4R+TUoERC/VXfxnAeLZ5eZBgERV9r8fNypLTSO/cOJCqNuG7YNsRDSYUH2ugLj/ec+LPyC9DmcpKSMS8vARcPsoSqMVdlS5LugrygoA4Lv2ItuOLUYXm89p9jQJW5B5lJIJ+xuOFjbqVI40shtn6x8jh1CECJFJ1hdneM0+6ulYv7e0erSXnZ6s5h7+cnCK4h4UTiuHQ3xhIVBMo9UTPzZjNhDtoCOO104znOUsb3+5ZYeEBXYZwG0CEAIveSHlpoBDDUHmCAFL092qlMmCJyiJcJz/jnLI1/tkABhIKvSb4joPd85truZGFbIsJVSMDOKAZar0PngwwVndyZzd+xFcDeU53+DK7PYPzDicXQExV3wecBK3YvsIGR2+mYXQ1cwVdnC3bd5MGmKwDWtvBdApSQQj5ldiiOiVnrudjUIAfLYLI/Xq1EMxfbChDbCAxBzAFiZCyrPanx+aZLt8ecnQumbqHY9hs5WQ0r0V4EO5mhyzCWQ0pk07M8xpHEngFnizBQ3bORcUTBFLxZ5gKUp14n7aPQg2eiethkrAa3kSv1BPwVoE09TrrXZah3Rq9cC9Q3RQD5eNzL1Bz8jveYDJUbCE=
         skip_cleanup: true
