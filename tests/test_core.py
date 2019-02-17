@@ -121,5 +121,3 @@ def test_safe_get_transformations(config):
     status_bad_request = safitty.safe_get(config, "status", transform=lambda x: x == 400)
     assert type(status_bad_request) == bool
     assert status_bad_request
-
-
