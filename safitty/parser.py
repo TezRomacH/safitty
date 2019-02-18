@@ -63,7 +63,7 @@ OrderedLoader.add_constructor(
 def load_config(path: str, ordered: bool = False) -> Storage:
     """Loads config by giving path. Supports YAML and JSON files.
     Args:
-        config_path (str): path to config file (YAML or JSON)
+        path (str): path to config file (YAML or JSON)
         ordered (bool): decide if the config should be loaded as ``OrderedDict``
     Returns:
         (Storage): Config
