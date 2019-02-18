@@ -114,6 +114,7 @@ def get_by_keys(
     if len(keys) == 0:
         status, value = Status.OKAY, storage
 
+    previous_container = None
     for i, key in enumerate(keys):
         if status == Status.OKAY:
             status, value = get_value(value, key)
@@ -122,6 +123,7 @@ def get_by_keys(
                 last_value_key_id += 1
 
                 if is_container(value):
+                    previous_container = last_container
                     last_container = value
                     last_container_key_id += 1
         else:
@@ -135,7 +137,9 @@ def get_by_keys(
         "last_value_key_id": last_value_key_id,
 
         "last_container": last_container,
-        "last_container_key_id": last_container_key_id
+        "last_container_key_id": last_container_key_id,
+
+        "previous_container": previous_container
     }
     return result
 
@@ -283,8 +287,13 @@ def safe_set(
 
         i += 1
 
+    if len(unused_keys) == 0:
+        unused_keys = [keys[-1]]
+        container = result["previous_container"]
     if is_okay:
         key = unused_keys[-1]
-        container[key] = value
+        can_change = extend_container(container, key)
+        if can_change == Status.OKAY:
+            container[key] = value
 
     return updated_storage

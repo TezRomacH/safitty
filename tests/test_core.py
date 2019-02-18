@@ -1,3 +1,4 @@
+import copy
 import pytest
 import safitty
 
@@ -30,6 +31,9 @@ def config(request):
             "other": None
         },
         "numbers": [1, 2, -2, 4, 7],
+        "numbers2": {
+            "inner": [-1, -2]
+        },
         "status": 400
     }
     return configuration
@@ -121,3 +125,16 @@ def test_safe_get_transformations(config):
     status_bad_request = safitty.safe_get(config, "status", transform=lambda x: x == 400)
     assert type(status_bad_request) == bool
     assert status_bad_request
+
+
+def test_safe_set(config):
+    config = copy.deepcopy(config)
+    assert safitty.safe_get(config, "numbers", transform=len) == 5
+    safitty.safe_set(config, "numbers", 8, value=42)
+    assert safitty.safe_get(config, "numbers", transform=len) == 9
+    assert safitty.safe_get(config, "numbers", 8) == 42
+
+    assert safitty.safe_set(config, "numbers2", "inner", value=[])
+    assert safitty.safe_get(config, "numbers2", "inner", transform=len) == 0
+    assert safitty.safe_set(config, "numbers", value=[])
+    assert safitty.safe_get(config, "numbers", transform=len) == 0

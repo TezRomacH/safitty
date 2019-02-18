@@ -31,15 +31,10 @@ jobs:
     script: true
     deploy:
       provider: pypi
-      user: $PYPI_USER
-      password: $PYPI_PASS
-
+      user: "$PYPI_USER"
+      password:
+        secure: CKT3U6ogO11rxFpjsv+i4cdXbVgCOwx3Lcv9MApu8wWKvf18tLkGt4ylrJrgCb+XQgJi47jA+EeWKX8xHkX5yeNHxAOJqCSGXQft/wK6Ucqah2jTt56RC8mTZ7V7gU+s/tN4D46YPRJfkVq7PggnrLGT+Zo3SdHh6rZwOwBX575SfC5IhoeApoaYPVuMjhZh9sJy79G6ekXcQ1MUMxi/tbW1JQ1xyoDu1Rld1iR8RG7qtVkVuROa41bOKpisWgW9PH5dM5SiX/ahA6y0XXbqHwjnystR8DODzzzy8PQ+iVKVqwdOAU4W1DRhzs/fUO5g8GrvDJU0facvYWV7xt/xx/6pxtjDMqlokQCK8jiglSqXwdr5KRdJZ3sosaqFGiKMFrWdyBHK3disEvrgPui2gItRjqQqM0y2Qi5EteGBbVQws1oMND4rpCiT0AaWTqXPTqPbztN+sHSVeJdEe8AnOAHBcES8lVtdx3h9rDQd3YneSm1L0JkWYZxy+Ke65yC7yiu1PuSEywg+ykweCmNeAfZX0B4Qn+QFr5qkn+IY30asxKnElAUr0oKKSL3K60vsks9mlikXMWIU9ME3uDEhtnOWJ5K0UAmmgDtu0JLiYsmQ/Ann4Z1rxPPGEdclpSO6N1UVfw+eQ/fRy5AktsU8i8fIqKbuHTgtDaKNbAfMlb0=
       skip_cleanup: true
-      skip_existing: true
-      distributions: "sdist bdist_wheel"
+      distributions: sdist bdist_wheel
       on:
         tags: true
-        python: 3.6
-env:
-  global:
-    secure: EHRHIL14hLC2mSU7F799jPUw3mT3frgljf/HOuhvJdSWT1V9aEjmyc7iMs+gNLa9V8fXHqeDHBAB0DUOX64auUWB52P58lt8UNubVrhIqq9Q1vm/eODVEfOKrLexh7PwIq++2h+x96jjhPS4cGdQ465Reg3tBCFalNffV0KkdVliGp7pjivHiOFlzRyIL8PsiFvq1TVmnPOnSEhL3CUXcvfsfrgnLuufR8BoV0+jtXUh6aHI9zbKILkPLO5w67t+nvCoNcRus5EiUfGWWG2HuIVAfPqSxa27Sgho3J+Oh5b3RCQ3QzAhUw6pMTr+uhsUW+Z4lovrOPtbvCwe+ZiK6JxLRRF1KxiBYwevJ7L6cIKYVz9fClhmouXqWbTLjdjc7ZWPBVaBsgPzaacaCx0j24quAU2zt/qI7SS8PWdhmSwtmbUbY7nowwcg6eIsCKZ2kJoml0lMzfYCVxZhc78RjC4XADaxCxaWjoTtVwzB2VvGDOkDf+p+itr7CqtGsuu1uXVpOMaOHmioOT2cSrVIn7NBYd62aXowV9bPTbrTZlph4aXRxODMVaapOxfXYHvqihMr8wxkFPB9pXUeUiFKlRPwOC+SDNPfCzj0CBGJmgcisk1FZ7jU+ZGqPWBENIJ56Oxfx6ys7bhyxvq4NqTw7HgTnoy1nUuykdCpGkCQqaE=
