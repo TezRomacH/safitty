@@ -14,7 +14,7 @@ from pathlib import Path
 import json
 import yaml
 
-from typing import List, Any, Type, Optional, Dict
+from typing import List, Any, Type, Optional
 from collections import OrderedDict
 from pydoc import locate
 
@@ -190,19 +190,22 @@ def update_config_from_args(config: Storage, args: List[str]) -> Storage:
 
 
 def load_config_from_args(
+        *,
+        parser: Optional[argparse.ArgumentParser] = None,
         arguments: Optional[List[str]] = None,
-        argparser_kwargs: Optional[Dict] = None
 ) -> Storage:
     """Parses command line arguments, loads config and updates it with unknown args
     Args:
+        parser (ArgumentParser, optional): an argument parser
+            if none uses ``safitty.argparser()`` by default
         arguments (List[str], optional): arguments to parse, if None uses command line arguments
-        argparser_kwargs (dict, optional): arguments for ``ArgumentParser.__init__``.
     Returns:
         (Storage): config dict with updated values from unknown args
     Examples:
-        >>> load_config_from_args("-C examples/config.json --verbose=True:bool --paths/jsons/0:int=uno".split())
+        >>> load_config_from_args(arguments="-C examples/config.json --paths/jsons/0:int=uno".split())
     """
-    argparser_kwargs = argparser_kwargs or {}
-    args, uargs = argparser(**argparser_kwargs).parse_known_args(args=arguments)
+    parser = parser or argparser()
+
+    args, uargs = parser.parse_known_args(args=arguments)
     config = load_config(args.config, ordered=False)
     return update_config_from_args(config, uargs)

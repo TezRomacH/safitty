@@ -39,6 +39,27 @@ def config(request):
     return configuration
 
 
+@pytest.fixture(scope="module")
+def transforms(request):
+    transforms = [
+        {
+            'name': 'Normalize',
+            'function': 'ToTensor',
+            'params': None
+        },
+        {
+            'name': 'Padding',
+            'function': 'Pad',
+            'params': {
+                'fill': 3,
+                'padding_mode': 'reflect'
+            }
+        }
+    ]
+
+    return transforms
+
+
 def test_safe_get(config):
     assert safitty.safe_get(config) == config
     assert isinstance(safitty.safe_get(config, "words"), dict)
@@ -138,3 +159,33 @@ def test_safe_set(config):
     assert safitty.safe_get(config, "numbers2", "inner", transform=len) == 0
     assert safitty.safe_set(config, "numbers", value=[])
     assert safitty.safe_get(config, "numbers", transform=len) == 0
+
+
+def test_safe_set_strategies(config):
+    config = copy.deepcopy(config)
+    safitty.safe_set(config, "words", "quadre", value="four", strategy="existing_key")
+    assert safitty.safe_get(config, "words", "quadre") is None
+
+    safitty.safe_set(config, "words", "one", value="four", strategy="existing_key")
+    assert safitty.safe_get(config, "words", "one") is not None
+    assert safitty.safe_get(config, "words", "one") == "four"
+
+    safitty.safe_set(config, "words", "one", value="five", strategy="missing_key")
+    assert safitty.safe_get(config, "words", "one") != "five"
+
+    safitty.safe_set(config, "words", "five", value="five", strategy="missing_key")
+    assert safitty.safe_get(config, "words", "five") == "five"
+
+    # cannot reset a reference
+    assert safitty.safe_set(config, value="hi") == "hi"
+    assert config != "hi"
+
+    safitty.safe_set(config, "numbers", 40, "hi", "", value="привет")
+    assert safitty.safe_get(config, "numbers", 40, "hi", "") is not None
+    assert safitty.safe_get(config, "numbers", 40, "hi", "") == "привет"
+
+
+def test_safe_set_2(transforms):
+    transforms = copy.deepcopy(transforms)
+    safitty.safe_set(transforms, 2, "name", value="BatchNorm2d")
+    assert safitty.safe_get(transforms, 2, "name") == "BatchNorm2d"

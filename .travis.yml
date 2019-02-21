@@ -28,6 +28,7 @@ jobs:
       - py.test tests/
 
   - stage: Deploy
+    name: "Pypi"
     script: true
     deploy:
       provider: pypi
@@ -37,3 +38,16 @@ jobs:
       distributions: sdist bdist_wheel
 #      on:
 #        tags: true
+#
+#  - stage: Deploy
+#    name: "Docs"
+#    if: branch = master
+#    install:
+#      - *requirements
+#      - pip install -r docs/requirements.txt
+#      - pip install travis-sphinx
+#    script:
+#      - travis-sphinx build --source docs/ --nowarn
+#    after_success:
+#      - travis-sphinx deploy
+

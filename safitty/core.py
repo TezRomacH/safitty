@@ -19,10 +19,10 @@ def need_last_value(status: int, value: Optional[Any], strategy: str) -> bool:
 
 
 def need_default(status: int, value: Optional[Any], strategy: str) -> bool:
-    strategy_final = (strategy == Strategy.ON_FINAL) and value is None
+    strategy_force = (strategy == Strategy.FORCE) and value is None
     strategy_missing_key = (strategy == Strategy.MISSING_KEY) and (status in Status.WRONG_KEY)
 
-    return strategy_final or strategy_missing_key
+    return strategy_force or strategy_missing_key
 
 
 def need_apply_function(value: Optional[Any], function: Optional[Transform]) -> bool:
@@ -147,7 +147,7 @@ def get_by_keys(
 def safe_get(
         storage: Optional[Storage],
         *keys: Key,
-        strategy: str = "final",
+        strategy: str = "force",
         default: Optional[Any] = None,
         transform: Optional[Transform] = None,
         apply: Optional[Transform] = None,
@@ -158,10 +158,10 @@ def safe_get(
         storage (Storage): The container for `get`. Usually it's a configuration file (yaml of json)
         *keys (Key):  Keys for the storage, param list of int or str
         strategy (str): Must be one of
-            - final: Returns a default value if the final result is None
-            - missing_key: Returns a default value only is some of the keys is missing
-            - last_value: Returns last available nested value. It doesn't use `default` param
-            - last_container:
+            - "force": Returns a default value if the final result is None
+            - "missing_key": Returns a default value only is some of the keys is missing
+            - "last_value": Returns last non null value. It doesn't use `default` param
+            - "last_container": Returns last non-null container. It doesn't use `default` param
         default (Any):  Default value used for :strategy: param
         transform (Transform): Either type or a function.
             If this parameter is not None then applies it to the result value
@@ -173,7 +173,7 @@ def safe_get(
             Any: The result value or ``default``
         """
     if strategy not in Strategy.ALL_FOR_GET:
-        raise ValueError(f"Strategy must be on of {Strategy.ALL_FOR_GET}. Got {strategy}")
+        raise ValueError(f"Strategy must be on of {Strategy.ALL_FOR_GET}. Got '{strategy}'")
 
     keys = reformat_keys(keys)
     result = get_by_keys(storage, *keys)
@@ -215,7 +215,7 @@ def extend_container(container, key) -> Status:
     if isinstance(container, list):
         if isinstance(key, int):
             length = len(container)
-            if key > length:
+            if key >= length:
                 container.extend([None] * (key - length + 1))
             return Status.OKAY
         else:
@@ -239,10 +239,19 @@ def set_into_container(container, current_key, next_key) -> Tuple[Status, Option
         return Status.EXCEPTION_RAISED, None
 
 
+def not_need_missing_key(on_missing_key: bool, strategy: str) -> bool:
+    return (not on_missing_key) and strategy == Strategy.MISSING_KEY
+
+
+def not_need_set_existing_key(on_existing_key: bool, strategy: str) -> bool:
+    return (not on_existing_key) and strategy == Strategy.EXISTING_KEY
+
+
 def safe_set(
         storage: Optional[Storage],
         *keys: Key,
         value: Any,
+        strategy: str = "force",
         inplace: bool = True
 ) -> Optional[Storage]:
     """Setter for nested dictionaries/lists of any depth
@@ -250,6 +259,10 @@ def safe_set(
         storage (Storage): The container that set into. Usually it's a configuration file (yaml of json)
         *keys (Key):  Keys for the storage, param list of int or str
         value (Any): The value to set into the storage
+        strategy (str): Setting strategy
+            - "force" sets value anyway. If there were not such keys it creates them
+            - "missing_key" sets value only if at some level a key were not in storage
+            - "existing_key" sets value only if all key were in storage
         inplace (bool): If True set value inplace into the storage, otherwise don't change the ``storage``
             params, returns only updated
     Returns:
@@ -257,6 +270,9 @@ def safe_set(
     """
     if len(keys) == 0:
         return value
+
+    if strategy not in Strategy.ALL_FOR_SET:
+        raise ValueError(f"Strategy must be on of {Strategy.ALL_FOR_SET}. Got '{strategy}'")
 
     if inplace:
         updated_storage = storage
@@ -268,8 +284,28 @@ def safe_set(
     unused_keys = list(keys[last_container_key_id:])
     container = result['last_container']
 
+    on_existing_key = False
+    on_missing_key = True
+    count_unused = len(unused_keys)
+
+    if count_unused == 0:
+        unused_keys = [keys[-1]]
+        container = result["previous_container"]
+        on_existing_key = True
+        on_missing_key = False
+    elif count_unused == 1:
+        item = unused_keys[0]
+        in_container = item in container
+        on_existing_key = in_container
+        on_missing_key = not in_container
+
     i = 0
     is_okay = True
+
+    if not_need_missing_key(on_missing_key, strategy) \
+            or not_need_set_existing_key(on_existing_key, strategy):
+        return updated_storage
+
     while i < len(unused_keys) - 1:
         key = unused_keys[i]
         next_key = unused_keys[i+1]
@@ -287,9 +323,6 @@ def safe_set(
 
         i += 1
 
-    if len(unused_keys) == 0:
-        unused_keys = [keys[-1]]
-        container = result["previous_container"]
     if is_okay:
         key = unused_keys[-1]
         can_change = extend_container(container, key)
