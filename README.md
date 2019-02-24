@@ -83,5 +83,5 @@ result = safitty.safe_get(config, "transforms", 0, "function", default="identity
 For reverse action there is `safe_set`, method for setting value for any depth
 ```python
 # this expand inner list to fit length of 2 and set {'name': 'BatchNorm2d'}
-safitty.safe_set(config, "transforms", 2, "name", default="BatchNorm2d")
+safitty.safe_set(config, "transforms", 2, "name", value="BatchNorm2d")
 ```
