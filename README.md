@@ -15,7 +15,7 @@ pip install -U safitty
 ## Features
 - Safe `get` for dictionaries and lists
 - Safe `set` for dictionaries and lists
-- Multiple keys at one `getter`/`setter` call.
+- Multiple keys at one `safe_get`/`safe_set` call.
 - Several strategies, includes: Get the most deep non-null value by your keys, Get the last non-null container and more
 - Value transformations to classes
 
@@ -47,7 +47,7 @@ transforms:
  - name: Padding  
    function: Pad  
    params:
-	  fill: 3  
+      fill: 3  
       padding_mode: reflect
 ```
 
@@ -71,7 +71,6 @@ Note that Python has no safe-method for lists, so if transforms were empty `resu
 
 Safitty allows to do the same in more readable way
 ```python
-import yaml
 import safitty
 
 # can load json or yaml
