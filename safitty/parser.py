@@ -60,11 +60,12 @@ OrderedLoader.add_constructor(
 )
 
 
-def load_config(path: str, ordered: bool = False) -> Storage:
+def load_config(path: str, ordered: bool = False, encoding: str = "utf-8") -> Storage:
     """Loads config by giving path. Supports YAML and JSON files.
     Args:
         path (str): path to config file (YAML or JSON)
         ordered (bool): decide if the config should be loaded as ``OrderedDict``
+        encoding (str): encoding to read the config
     Returns:
         (Storage): Config
     Raises:
@@ -76,7 +77,7 @@ def load_config(path: str, ordered: bool = False) -> Storage:
         raise Exception(f"Path '{path}' doesn't exist!")
 
     config = None
-    with config_path.open() as stream:
+    with config_path.open(encoding=encoding) as stream:
         ext = config_path.suffix
 
         if ext == ".json":
