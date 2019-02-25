@@ -19,7 +19,7 @@ def need_last_value(status: int, value: Optional[Any], strategy: str) -> bool:
 
 
 def need_default(status: int, value: Optional[Any], strategy: str) -> bool:
-    strategy_force = (strategy == Strategy.FORCE) and value is None
+    strategy_force = (strategy == Strategy.ON_NONE) and value is None
     strategy_missing_key = (strategy == Strategy.MISSING_KEY) and (status in Status.WRONG_KEY)
 
     return strategy_force or strategy_missing_key
@@ -147,7 +147,7 @@ def get_by_keys(
 def safe_get(
         storage: Optional[Storage],
         *keys: Key,
-        strategy: str = "force",
+        strategy: str = "on_none",
         default: Optional[Any] = None,
         transform: Optional[Transform] = None,
         apply: Optional[Transform] = None,
@@ -158,7 +158,7 @@ def safe_get(
         storage (Storage): The container for `get`. Usually it's a configuration file (yaml of json)
         *keys (Key):  Keys for the storage, param list of int or str
         strategy (str): Must be one of
-            - "force": Returns a default value if the final result is None
+            - "on_none": Returns a default value if the final result is None
             - "missing_key": Returns a default value only is some of the keys is missing
             - "last_value": Returns last non null value. It doesn't use `default` param
             - "last_container": Returns last non-null container. It doesn't use `default` param
@@ -261,6 +261,7 @@ def safe_set(
         value (Any): The value to set into the storage
         strategy (str): Setting strategy
             - "force" sets value anyway. If there were not such keys it creates them
+            - "on_none" sets new value if previous was None.
             - "missing_key" sets value only if at some level a key were not in storage
             - "existing_key" sets value only if all key were in storage
         inplace (bool): If True set value inplace into the storage, otherwise don't change the ``storage``
@@ -283,6 +284,9 @@ def safe_set(
     last_container_key_id = result['last_container_key_id']
     unused_keys = list(keys[last_container_key_id:])
     container = result['last_container']
+
+    if strategy == Strategy.ON_NONE and result["value"] is not None:
+        return updated_storage
 
     on_existing_key = False
     on_missing_key = True

@@ -44,11 +44,12 @@ class Strategy:
     MISSING_KEY = "missing_key"
     LAST_VALUE = "last_value"
     LAST_CONTAINER = "last_container"
+    ON_NONE = "on_none"
     FORCE = "force"
     EXISTING_KEY = "existing_key"
 
-    ALL_FOR_GET = [FORCE, MISSING_KEY, LAST_VALUE, LAST_CONTAINER]
-    ALL_FOR_SET = [FORCE, MISSING_KEY, EXISTING_KEY]
+    ALL_FOR_GET = [ON_NONE, MISSING_KEY, LAST_VALUE, LAST_CONTAINER]
+    ALL_FOR_SET = [FORCE, ON_NONE, MISSING_KEY, EXISTING_KEY]
 
 
 Storage = Union[Dict[str, Any], List[Any]]

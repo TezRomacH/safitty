@@ -189,3 +189,13 @@ def test_safe_set_2(transforms):
     transforms = copy.deepcopy(transforms)
     safitty.safe_set(transforms, 2, "name", value="BatchNorm2d")
     assert safitty.safe_get(transforms, 2, "name") == "BatchNorm2d"
+
+    safitty.safe_set(transforms, 1, "params", value="add", strategy="on_none")
+    params1 = safitty.safe_get(transforms, 1, "params")
+    assert params1 is not None
+    assert params1 != "add"
+
+    safitty.safe_set(transforms, 0, "params", value="subtract", strategy="on_none")
+    params0 = safitty.safe_get(transforms, 0, "params")
+    assert params0 is not None
+    assert params0 == "subtract"
