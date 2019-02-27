@@ -85,3 +85,5 @@ For reverse action there is `set`, method for setting value for any depth
 # this expand inner list to fit length of 2 and set {'name': 'BatchNorm2d'}
 safitty.set(config, "transforms", 2, "name", value="BatchNorm2d")
 ```
+
+There are type aliases for `get` and `set`: `safe_get` and `safe_set`

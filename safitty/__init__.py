@@ -1,4 +1,4 @@
-from safitty.core import get, set
+from safitty.core import get, set, safe_set, safe_get
 from safitty.types import star, dstar, Storage, Key, Transform
 from safitty.parser import argparser, load_config, \
     update_config_from_args, load_config_from_args
@@ -6,7 +6,9 @@ from safitty.parser import argparser, load_config, \
 
 __all__ = [
     "get",
+    "safe_get",
     "set",
+    "safe_set",
     "star",
     "dstar",
     "Storage",
