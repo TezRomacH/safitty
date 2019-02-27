@@ -9,16 +9,16 @@ Some methods were formatted and simplified.
 import argparse
 import re
 import copy
+from typing import List, Any, Type, Optional
 
 from pathlib import Path
 import json
 import yaml
 
-from typing import List, Any, Type, Optional
+import safitty
 from collections import OrderedDict
 from pydoc import locate
 
-from .core import safe_set
 from .types import Storage
 
 
@@ -185,7 +185,7 @@ def update_config_from_args(config: Storage, args: List[str]) -> Storage:
         value = parse_content(value)
         names = [parse_content(name) for name in names.split("/")]
 
-        updated_config = safe_set(updated_config, *names, value=value)
+        updated_config = safitty.set(updated_config, *names, value=value)
 
     return updated_config
 

@@ -16,9 +16,9 @@ class ImageReader:
 if __name__ == "__main__":
     config = safitty.load_config("config.yml")
 
-    path = safitty.safe_get(config, "paths", "images", default="images/", apply=Path)
+    path = safitty.get(config, "paths", "images", default="images/", apply=Path)
     print(type(path))  # pathlib.PosixPath
 
-    if safitty.safe_get(config, "reader", "need_reader", default=False):
-        reader = safitty.safe_get(config, "reader", "params", apply=ImageReader)
+    if safitty.get(config, "reader", "need_reader", default=False):
+        reader = safitty.get(config, "reader", "params", apply=ImageReader)
         print(reader)  # ((521, 512)), grayscale = True

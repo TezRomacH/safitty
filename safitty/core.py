@@ -144,7 +144,7 @@ def get_by_keys(
     return result
 
 
-def safe_get(
+def get(
         storage: Optional[Storage],
         *keys: Key,
         strategy: str = "on_none",
@@ -247,7 +247,7 @@ def not_need_set_existing_key(on_existing_key: bool, strategy: str) -> bool:
     return (not on_existing_key) and strategy == Strategy.EXISTING_KEY
 
 
-def safe_set(
+def set(
         storage: Optional[Storage],
         *keys: Key,
         value: Any,

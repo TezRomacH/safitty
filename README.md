@@ -15,7 +15,7 @@ pip install -U safitty
 ## Features
 - Safe `get` for dictionaries and lists
 - Safe `set` for dictionaries and lists
-- Multiple keys at one `safe_get`/`safe_set` call.
+- Multiple keys at one `get`/`set` call.
 - Several strategies, includes: Get the most deep non-null value by your keys, Get the last non-null container and more
 - Value transformations to classes
 
@@ -28,10 +28,10 @@ import safitty
 config = safitty.load_config("/path/to/config.yml")
 
 # Getting value from the config
-safitty.safe_get(config, "very", "deep", "call", default="This is the default value")
+safitty.get(config, "very", "deep", "call", default="This is the default value")
 
 # Setting value into
-safitty.safe_set(config, "clients", 0, "address", value="localhost:8888")
+safitty.set(config, "clients", 0, "address", value="localhost:8888")
 ```
 
 ## Why do I need **Safitty**?
@@ -77,11 +77,11 @@ import safitty
 config = safitty.load_config(config_path)
 
 # getter for any depth
-result = safitty.safe_get(config, "transforms", 0, "function", default="identity")
+result = safitty.get(config, "transforms", 0, "function", default="identity")
 ```
 
-For reverse action there is `safe_set`, method for setting value for any depth
+For reverse action there is `set`, method for setting value for any depth
 ```python
 # this expand inner list to fit length of 2 and set {'name': 'BatchNorm2d'}
-safitty.safe_set(config, "transforms", 2, "name", value="BatchNorm2d")
+safitty.set(config, "transforms", 2, "name", value="BatchNorm2d")
 ```
