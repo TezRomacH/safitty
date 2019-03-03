@@ -194,12 +194,14 @@ def load_config_from_args(
         *,
         parser: Optional[argparse.ArgumentParser] = None,
         arguments: Optional[List[str]] = None,
+        ordered: bool = False
 ) -> Storage:
     """Parses command line arguments, loads config and updates it with unknown args
     Args:
         parser (ArgumentParser, optional): an argument parser
             if none uses ``safitty.argparser()`` by default
         arguments (List[str], optional): arguments to parse, if None uses command line arguments
+        ordered (bool): if True loads the config as an ``OrderedDict``
     Returns:
         (Storage): config dict with updated values from unknown args
     Examples:
@@ -208,5 +210,5 @@ def load_config_from_args(
     parser = parser or argparser()
 
     args, uargs = parser.parse_known_args(args=arguments)
-    config = load_config(args.config, ordered=False)
+    config = load_config(args.config, ordered=ordered)
     return update_config_from_args(config, uargs)
