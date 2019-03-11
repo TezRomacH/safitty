@@ -1,4 +1,4 @@
-import copy
+from copy import deepcopy
 from typing import Optional, Tuple, Any, List, Dict
 
 from safitty.types import Storage, Status, Strategy, \
@@ -151,7 +151,8 @@ def get(
         default: Optional[Any] = None,
         transform: Optional[Transform] = None,
         apply: Optional[Transform] = None,
-        raise_on_transforms: bool = False
+        raise_on_transforms: bool = False,
+        copy: bool = False
 ) -> Optional[Any]:
     """Getter for nested dictionaries/lists of any depth.
     Args:
@@ -169,6 +170,7 @@ def get(
             (pass ``*result`` to a function/type  if ``result`` is a list
             or **result if ``result`` is a dict)
         raise_on_transforms (bool): if set as True raise an Exception after fail on ``transforms`` or ``apply``
+        copy (bool): if true returns the copy of a value
     Returns:
             Any: The result value or ``default``
         """
@@ -206,6 +208,9 @@ def get(
             raise
         else:
             value = None
+
+    if copy:
+        value = deepcopy(value)
 
     return value
 
@@ -278,7 +283,7 @@ def set(
     if inplace:
         updated_storage = storage
     else:
-        updated_storage = copy.deepcopy(storage)
+        updated_storage = deepcopy(storage)
     result = get_by_keys(updated_storage, *keys)
 
     last_container_key_id = result['last_container_key_id']
@@ -344,7 +349,8 @@ def safe_get(
         default: Optional[Any] = None,
         transform: Optional[Transform] = None,
         apply: Optional[Transform] = None,
-        raise_on_transforms: bool = False
+        raise_on_transforms: bool = False,
+        copy: bool = False
 ) -> Optional[Any]:
     """Getter for nested dictionaries/lists of any depth.
     Args:
@@ -362,18 +368,22 @@ def safe_get(
             (pass ``*result`` to a function/type  if ``result`` is a list
             or **result if ``result`` is a dict)
         raise_on_transforms (bool): if set as True raise an Exception after fail on ``transforms`` or ``apply``
+        copy (bool): if true returns the copy of a value
     Returns:
             Any: The result value or ``default``
         """
-    return get(
+    result = get(
         storage,
         *keys,
         strategy=strategy,
         default=default,
         transform=transform,
         apply=apply,
-        raise_on_transforms=raise_on_transforms
+        raise_on_transforms=raise_on_transforms,
+        copy=copy
     )
+
+    return result
 
 
 def safe_set(
