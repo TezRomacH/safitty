@@ -152,7 +152,8 @@ def get(
         transform: Optional[Transform] = None,
         apply: Optional[Transform] = None,
         raise_on_transforms: bool = False,
-        copy: bool = False
+        copy: bool = False,
+        one_of: List[Any] = None,
 ) -> Optional[Any]:
     """Getter for nested dictionaries/lists of any depth.
     Args:
@@ -171,6 +172,7 @@ def get(
             or **result if ``result`` is a dict)
         raise_on_transforms (bool): if set as True raise an Exception after fail on ``transforms`` or ``apply``
         copy (bool): if true returns the copy of a value
+        one_of (List[Any]): check is the value one of the values`
     Returns:
             Any: The result value or ``default``
         """
@@ -211,6 +213,9 @@ def get(
 
     if copy:
         value = deepcopy(value)
+
+    if one_of is not None:
+        value = value in one_of
 
     return value
 
@@ -350,7 +355,8 @@ def safe_get(
         transform: Optional[Transform] = None,
         apply: Optional[Transform] = None,
         raise_on_transforms: bool = False,
-        copy: bool = False
+        copy: bool = False,
+        one_of: List[Any] = None
 ) -> Optional[Any]:
     """Getter for nested dictionaries/lists of any depth.
     Args:
@@ -368,6 +374,7 @@ def safe_get(
             (pass ``*result`` to a function/type  if ``result`` is a list
             or **result if ``result`` is a dict)
         raise_on_transforms (bool): if set as True raise an Exception after fail on ``transforms`` or ``apply``
+        one_of (List[Any]): check is the value one of the values
         copy (bool): if true returns the copy of a value
     Returns:
             Any: The result value or ``default``
@@ -380,7 +387,8 @@ def safe_get(
         transform=transform,
         apply=apply,
         raise_on_transforms=raise_on_transforms,
-        copy=copy
+        copy=copy,
+        one_of=one_of
     )
 
     return result
