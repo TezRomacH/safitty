@@ -195,7 +195,7 @@ def load_config_from_args(
         parser: Optional[argparse.ArgumentParser] = None,
         arguments: Optional[List[str]] = None,
         ordered: bool = False
-) -> Storage:
+) -> (argparse.Namespace, Storage):
     """Parses command line arguments, loads config and updates it with unknown args
     Args:
         parser (ArgumentParser, optional): an argument parser
@@ -203,7 +203,8 @@ def load_config_from_args(
         arguments (List[str], optional): arguments to parse, if None uses command line arguments
         ordered (bool): if True loads the config as an ``OrderedDict``
     Returns:
-        (Storage): config dict with updated values from unknown args
+        (Namespace, Storage): arguments form args and a
+            config dict with updated values from unknown args
     Examples:
         >>> load_config_from_args(arguments="-C examples/config.json --paths/jsons/0:int=uno".split())
     """
@@ -211,4 +212,5 @@ def load_config_from_args(
 
     args, uargs = parser.parse_known_args(args=arguments)
     config = load_config(args.config, ordered=ordered)
-    return update_config_from_args(config, uargs)
+    config = update_config_from_args(config, uargs)
+    return args, config
