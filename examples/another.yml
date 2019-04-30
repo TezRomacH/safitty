@@ -1,0 +1,8 @@
+verbose: True
+status:
+  - hi
+  - hello
+  - privet
+
+additional:
+  key: value

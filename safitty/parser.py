@@ -9,7 +9,7 @@ Some methods were formatted and simplified.
 import argparse
 import re
 import copy
-from typing import List, Any, Type, Optional
+from typing import List, Any, Type, Optional, Union
 
 from pathlib import Path
 import json
@@ -37,10 +37,11 @@ def argparser(**argparser_kwargs) -> argparse.ArgumentParser:
     parser_ = argparse.ArgumentParser(**argparser_kwargs)
 
     parser_.add_argument(
-        "-C", "--config",
-        type=str,
+        "-C", "--config", "--configs",
+        nargs="+",
         required=True,
-        help="Path to a config file (YAML or JSON)",
+        dest="configs",
+        help="Path to a config file/files (YAML or JSON)",
         metavar="{PATH}"
     )
     return parser_
@@ -60,7 +61,11 @@ OrderedLoader.add_constructor(
 )
 
 
-def load_config(path: str, ordered: bool = False, encoding: str = "utf-8") -> Storage:
+def load_config(
+        path: Union[str, Path],
+        ordered: bool = False,
+        encoding: str = "utf-8"
+) -> Storage:
     """Loads config by giving path. Supports YAML and JSON files.
     Args:
         path (str): path to config file (YAML or JSON)
@@ -71,7 +76,10 @@ def load_config(path: str, ordered: bool = False, encoding: str = "utf-8") -> St
     Raises:
         Exception: if path ``config_path`` doesn't exists or file format is not YAML or JSON
     """
-    config_path = Path(path)
+    if isinstance(path, str):
+        config_path = Path(path)
+    else:
+        config_path = path
 
     if not config_path.exists():
         raise Exception(f"Path '{path}' doesn't exist!")
@@ -203,14 +211,23 @@ def load_config_from_args(
         arguments (List[str], optional): arguments to parse, if None uses command line arguments
         ordered (bool): if True loads the config as an ``OrderedDict``
     Returns:
-        (Namespace, Storage): arguments form args and a
+        (Namespace, Storage): arguments from args and a
             config dict with updated values from unknown args
     Examples:
-        >>> load_config_from_args(arguments="-C examples/config.json --paths/jsons/0:int=uno".split())
+        >>> load_config_from_args(
+        >>>    arguments="-C examples/config.json examples/another.yml --paths/jsons/0:int=uno".split()
+        >>> )
     """
     parser = parser or argparser()
 
     args, uargs = parser.parse_known_args(args=arguments)
-    config = load_config(args.config, ordered=ordered)
+    config = {}
+    if hasattr(args, "config"):
+        config = load_config(args.config, ordered=ordered)
+
+    if hasattr(args, "configs"):
+        for i, config_path in enumerate(args.configs):
+            config_ = load_config(config_path, ordered=ordered)
+            config.update(config_)
     config = update_config_from_args(config, uargs)
     return args, config
