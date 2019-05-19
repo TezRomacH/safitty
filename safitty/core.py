@@ -20,7 +20,7 @@ def need_last_value(status: int, value: Optional[Any], strategy: str) -> bool:
 
 
 def need_default(status: int, value: Optional[Any], strategy: str) -> bool:
-    strategy_force = (strategy == Strategy.ON_NONE) and value is None
+    strategy_force = (strategy is None) and value is None
     strategy_missing_key = (strategy == Strategy.MISSING_KEY) and (status in Status.WRONG_KEY)
 
     return strategy_force or strategy_missing_key
@@ -148,7 +148,7 @@ def get_by_keys(
 def get(
         storage: Optional[Storage],
         *keys: Key,
-        strategy: str = "on_none",
+        strategy: str = None,
         default: Optional[Any] = None,
         transform: Optional[Transform] = None,
         apply: Optional[Transform] = None,
@@ -160,8 +160,7 @@ def get(
     Args:
         storage (Storage): The container for `get`. Usually it's a configuration file (yaml of json)
         *keys (Key):  Keys for the storage, param list of int or str
-        strategy (str): Must be one of
-            - "on_none": Returns a default value if the final result is None
+        strategy (str): should be be one of
             - "missing_key": Returns a default value only is some of the keys is missing
             - "last_value": Returns last non null value. It doesn't use `default` param
             - "last_container": Returns last non-null container. It doesn't use `default` param
@@ -177,7 +176,7 @@ def get(
     Returns:
             Any: The result value or ``default``
         """
-    if strategy not in Strategy.ALL_FOR_GET:
+    if strategy is not None and strategy not in Strategy.ALL_FOR_GET:
         raise ValueError(f"Strategy must be on of {Strategy.ALL_FOR_GET}. Got '{strategy}'")
 
     keys = reformat_keys(keys)
