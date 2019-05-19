@@ -1,3 +1,4 @@
+import warnings
 from copy import deepcopy
 from typing import Optional, Tuple, Any, List, Dict
 
@@ -346,7 +347,6 @@ def set(
     return updated_storage
 
 
-# type aliases
 def safe_get(
         storage: Optional[Storage],
         *keys: Key,
@@ -358,27 +358,11 @@ def safe_get(
         copy: bool = False,
         one_of: List[Any] = None
 ) -> Optional[Any]:
-    """Getter for nested dictionaries/lists of any depth.
-    Args:
-        storage (Storage): The container for `get`. Usually it's a configuration file (yaml of json)
-        *keys (Key):  Keys for the storage, param list of int or str
-        strategy (str): Must be one of
-            - "on_none": Returns a default value if the final result is None
-            - "missing_key": Returns a default value only is some of the keys is missing
-            - "last_value": Returns last non null value. It doesn't use `default` param
-            - "last_container": Returns last non-null container. It doesn't use `default` param
-        default (Any):  Default value used for :strategy: param
-        transform (Transform): Either type or a function.
-            If this parameter is not None then applies it to the result value
-        apply (Transform): As ``transform`` the parameter applies the result but unpacks it
-            (pass ``*result`` to a function/type  if ``result`` is a list
-            or **result if ``result`` is a dict)
-        raise_on_transforms (bool): if set as True raise an Exception after fail on ``transforms`` or ``apply``
-        one_of (List[Any]): check is the value one of the values
-        copy (bool): if true returns the copy of a value
-    Returns:
-            Any: The result value or ``default``
-        """
+    warnings.warn(
+        "`safitty.safe_get` is deprecated, use `safitty.get` instead",
+        DeprecationWarning
+    )
+
     result = get(
         storage,
         *keys,
@@ -401,21 +385,10 @@ def safe_set(
         strategy: str = "force",
         inplace: bool = True
 ) -> Optional[Storage]:
-    """Setter for nested dictionaries/lists of any depth
-    Args:
-        storage (Storage): The container that set into. Usually it's a configuration file (yaml of json)
-        *keys (Key):  Keys for the storage, param list of int or str
-        value (Any): The value to set into the storage
-        strategy (str): Setting strategy
-            - "force" sets value anyway. If there were not such keys it creates them
-            - "on_none" sets new value if previous was None.
-            - "missing_key" sets value only if at some level a key were not in storage
-            - "existing_key" sets value only if all key were in storage
-        inplace (bool): If True set value inplace into the storage, otherwise don't change the ``storage``
-            params, returns only updated
-    Returns:
-        Storage: updated storage
-    """
+    warnings.warn(
+        "`safitty.safe_set` is deprecated, use `safitty.set` instead",
+        DeprecationWarning
+    )
     return set(
         storage,
         *keys,

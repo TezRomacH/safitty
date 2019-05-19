@@ -17,7 +17,6 @@
       "name": "Padding",
       "function": "Pad",
       "params": {
-        "asd": "fuck",
         "fill": 3,
         "padding_mode": "reflect"
       }

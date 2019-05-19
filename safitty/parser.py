@@ -7,18 +7,18 @@ Some methods were formatted and simplified.
     https://github.com/catalyst-team/catalyst
 """
 import argparse
-import re
 import copy
+import json
+import re
+import warnings
+from collections import OrderedDict
+from pathlib import Path
+from pydoc import locate
 from typing import List, Any, Type, Optional, Union
 
-from pathlib import Path
-import json
 import yaml
 
 import safitty
-from collections import OrderedDict
-from pydoc import locate
-
 from .types import Storage
 
 
@@ -66,15 +66,30 @@ def load_config(
         ordered: bool = False,
         encoding: str = "utf-8"
 ) -> Storage:
+    warnings.warn(
+        "`safitty.load_config` is deprecated, use `safitty.load` instead",
+        DeprecationWarning
+    )
+
+    return load(path, ordered, encoding)
+
+
+def load(
+        path: Union[str, Path],
+        ordered: bool = False,
+        encoding: str = "utf-8"
+) -> Storage:
     """Loads config by giving path. Supports YAML and JSON files.
     Args:
         path (str): path to config file (YAML or JSON)
-        ordered (bool): decide if the config should be loaded as ``OrderedDict``
+        ordered (bool): if true the config will be loaded as ``OrderedDict``
         encoding (str): encoding to read the config
     Returns:
         (Storage): Config
     Raises:
         Exception: if path ``config_path`` doesn't exists or file format is not YAML or JSON
+    Examples:
+        >>> load(path="./config.yml", ordered=True)
     """
     if isinstance(path, str):
         config_path = Path(path)
@@ -204,6 +219,22 @@ def load_config_from_args(
         arguments: Optional[List[str]] = None,
         ordered: bool = False
 ) -> (argparse.Namespace, Storage):
+    warnings.warn(
+        "`safitty.load_config_from_args` is deprecated, use `safitty.load_from_args` instead",
+        DeprecationWarning
+    )
+
+    return load_from_args(
+        parser=parser, arguments=arguments, ordered=ordered
+    )
+
+
+def load_from_args(
+        *,
+        parser: Optional[argparse.ArgumentParser] = None,
+        arguments: Optional[List[str]] = None,
+        ordered: bool = False
+) -> (argparse.Namespace, Storage):
     """Parses command line arguments, loads config and updates it with unknown args
     Args:
         parser (ArgumentParser, optional): an argument parser
@@ -214,7 +245,7 @@ def load_config_from_args(
         (Namespace, Storage): arguments from args and a
             config dict with updated values from unknown args
     Examples:
-        >>> load_config_from_args(
+        >>> load_from_args(
         >>>    arguments="-C examples/config.json examples/another.yml --paths/jsons/0:int=uno".split()
         >>> )
     """
