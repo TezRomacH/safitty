@@ -349,7 +349,7 @@ def set(
 def safe_get(
         storage: Optional[Storage],
         *keys: Key,
-        strategy: str = "on_none",
+        strategy: str = None,
         default: Optional[Any] = None,
         transform: Optional[Transform] = None,
         apply: Optional[Transform] = None,
