@@ -254,11 +254,11 @@ def load_from_args(
     args, uargs = parser.parse_known_args(args=arguments)
     config = {}
     if hasattr(args, "config"):
-        config = load_config(args.config, ordered=ordered)
+        config = load(args.config, ordered=ordered)
 
     if hasattr(args, "configs"):
         for i, config_path in enumerate(args.configs):
-            config_ = load_config(config_path, ordered=ordered)
+            config_ = load(config_path, ordered=ordered)
             config.update(config_)
     config = update_config_from_args(config, uargs)
     return args, config
