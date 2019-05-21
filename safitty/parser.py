@@ -229,13 +229,21 @@ def load_config_from_args(
     )
 
 
-def update(dictionary, updated):
-    for k, v in updated.items():
+def update(config: Storage, updated_config: Storage) -> Storage:
+    """Updates configuration with an additional config
+    Args:
+        config (Storage): configuration dict
+        updated_config (Storage): dict with updates
+    Returns:
+        (Storage): updated config
+    """
+    result = copy.copy(config)
+    for k, v in updated_config.items():
         if isinstance(v, Mapping):
-            dictionary[k] = update(dictionary.get(k, {}), v)
+            result[k] = update(result.get(k, {}), v)
         else:
-            dictionary[k] = v
-    return dictionary
+            result[k] = v
+    return result
 
 
 def load_from_args(
