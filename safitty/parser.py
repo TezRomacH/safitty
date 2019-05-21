@@ -11,7 +11,7 @@ import copy
 import json
 import re
 import warnings
-from collections import OrderedDict
+from collections import OrderedDict, Mapping
 from pathlib import Path
 from pydoc import locate
 from typing import List, Any, Type, Optional, Union
@@ -229,6 +229,15 @@ def load_config_from_args(
     )
 
 
+def update(dictionary, updated):
+    for k, v in updated.items():
+        if isinstance(v, Mapping):
+            dictionary[k] = update(dictionary.get(k, {}), v)
+        else:
+            dictionary[k] = v
+    return dictionary
+
+
 def load_from_args(
         *,
         parser: Optional[argparse.ArgumentParser] = None,
@@ -259,6 +268,6 @@ def load_from_args(
     if hasattr(args, "configs"):
         for i, config_path in enumerate(args.configs):
             config_ = load(config_path, ordered=ordered)
-            config.update(config_)
+            config = update(config, config_)
     config = update_config_from_args(config, uargs)
     return args, config
