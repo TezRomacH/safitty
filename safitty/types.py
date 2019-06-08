@@ -1,4 +1,4 @@
-from typing import Dict, Union, List, Any, Type, Callable
+from typing import Union, List, Any, Type, Callable, Mapping
 
 
 class Relative:
@@ -52,7 +52,7 @@ class Strategy:
     ALL_FOR_SET = [FORCE, ON_NONE, MISSING_KEY, EXISTING_KEY]
 
 
-Storage = Union[Dict[str, Any], List[Any]]
+Storage = Union[Mapping, List[Any]]
 Key = Union[str, int, bool, Relative]
 
 Transform = Union[Type, Callable]

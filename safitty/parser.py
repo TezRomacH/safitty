@@ -18,7 +18,7 @@ from typing import List, Any, Type, Optional, Union
 
 import yaml
 
-import safitty
+from safitty import core
 from .types import Storage
 
 
@@ -92,33 +92,69 @@ def load(
         >>> load(path="./config.yml", ordered=True)
     """
     if isinstance(path, str):
-        config_path = Path(path)
+        _path = Path(path)
     else:
-        config_path = path
+        _path = path
 
-    if not config_path.exists():
+    ext = _path.suffix
+    if not _path.exists():
         raise Exception(f"Path '{path}' doesn't exist!")
 
-    config = None
-    with config_path.open(encoding=encoding) as stream:
-        ext = config_path.suffix
+    if ext not in [".json", ".yml", ".yaml"]:
+        raise Exception(f"Unknown file format '{ext}'")
 
+    storage = None
+    with _path.open(encoding=encoding) as stream:
         if ext == ".json":
             object_pairs_hook = OrderedDict if ordered else None
             file = "\n".join(stream.readlines())
             if file != "":
-                config = json.loads(file, object_pairs_hook=object_pairs_hook)
+                storage = json.loads(file, object_pairs_hook=object_pairs_hook)
 
-        elif ext == ".yml":
+        elif ext in [".yml", ".yaml"]:
             loader = OrderedLoader if ordered else yaml.Loader
-            config = yaml.load(stream, loader)
-        else:
-            raise Exception(f"Unknown file format '{ext}'")
+            storage = yaml.load(stream, loader)
 
-    if config is None:
+    if storage is None:
         return dict()
 
-    return config
+    return storage
+
+
+def save(
+    storage: Storage,
+    path: Union[str, Path],
+    encoding: str = "utf-8",
+    ensure_ascii: bool = False,
+    indent: int = 2,
+) -> None:
+    """
+    Saves config to file. Path must be either YAML or JSON
+    Args:
+        storage (Storage): config to save
+        path (Union[str, Path]): path to save
+        encoding (str): Encoding to write file. Default is ``utf-8``
+        ensure_ascii (bool): Used for JSON, if True non-ASCII
+            characters are escaped in JSON strings.
+        indent (int): Used for JSON
+    """
+    if isinstance(path, str):
+        _path = Path(path)
+    else:
+        _path = path
+
+    ext = _path.suffix
+    if ext not in [".json", ".yml", ".yaml"]:
+        raise Exception(f"Unknown file format '{ext}'")
+
+    with _path.open(encoding=encoding, mode="w") as stream:
+        if ext == ".json":
+            json.dump(
+                storage, stream,
+                indent=indent, ensure_ascii=ensure_ascii
+            )
+        elif ext in [".yml", ".yaml"]:
+            yaml.dump(storage, stream)
 
 
 def type_from_str(dtype: str) -> Type:
@@ -208,7 +244,7 @@ def update_config_from_args(config: Storage, args: List[str]) -> Storage:
         value = parse_content(value)
         names = [parse_content(name) for name in names.split("/")]
 
-        updated_config = safitty.set(updated_config, *names, value=value)
+        updated_config = core.set(updated_config, *names, value=value)
 
     return updated_config
 
