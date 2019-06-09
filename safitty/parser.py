@@ -10,7 +10,6 @@ import argparse
 import copy
 import json
 import re
-import warnings
 from collections import OrderedDict, Mapping
 from pathlib import Path
 from pydoc import locate
