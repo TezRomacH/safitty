@@ -61,19 +61,6 @@ OrderedLoader.add_constructor(
 )
 
 
-def load_config(
-        path: Union[str, Path],
-        ordered: bool = False,
-        encoding: str = "utf-8"
-) -> Storage:
-    warnings.warn(
-        "`safitty.load_config` is deprecated, use `safitty.load` instead",
-        DeprecationWarning
-    )
-
-    return load(path, ordered, encoding)
-
-
 def load(
         path: Union[str, Path],
         ordered: bool = False,
@@ -227,7 +214,7 @@ def parse_content(value: str) -> Any:
     return result
 
 
-def update_config_from_args(config: Storage, args: List[str]) -> Storage:
+def update_from_args(config: Storage, args: List[str]) -> Storage:
     """Updates configuration file with list of arguments
     Args:
         config (Storage): configuration dict
@@ -247,22 +234,6 @@ def update_config_from_args(config: Storage, args: List[str]) -> Storage:
         updated_config = core.set(updated_config, *names, value=value)
 
     return updated_config
-
-
-def load_config_from_args(
-        *,
-        parser: Optional[argparse.ArgumentParser] = None,
-        arguments: Optional[List[str]] = None,
-        ordered: bool = False
-) -> (argparse.Namespace, Storage):
-    warnings.warn(
-        "`safitty.load_config_from_args` is deprecated, use `safitty.load_from_args` instead",
-        DeprecationWarning
-    )
-
-    return load_from_args(
-        parser=parser, arguments=arguments, ordered=ordered
-    )
 
 
 def update(config: Storage, updated_config: Storage) -> Storage:
@@ -313,5 +284,5 @@ def load_from_args(
         for i, config_path in enumerate(args.configs):
             config_ = load(config_path, ordered=ordered)
             config = update(config, config_)
-    config = update_config_from_args(config, uargs)
+    config = update_from_args(config, uargs)
     return args, config

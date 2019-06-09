@@ -8,6 +8,8 @@ from . import core
 from . import parser
 from .types import Storage, Key, Keys
 
+from pprint import pformat
+
 
 class Safict(collections.Mapping):
     def __init__(
@@ -107,3 +109,10 @@ class Safict(collections.Mapping):
     def __iter__(self) -> Iterator[Key]:
         return self._storage.__iter__()
 
+    def __str__(self) -> str:
+        storage = pformat(self._storage)
+        result = f"Safict(\n" \
+            f"\tseparator={self.separator}\n" \
+            f"\tlength={self.__len__()}\n" \
+            f"\tstorage={storage}\n)"
+        return result
