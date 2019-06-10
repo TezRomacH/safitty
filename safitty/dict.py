@@ -87,6 +87,12 @@ class Safict(collections.Mapping):
 
         return result
 
+    def with_separator(self, separator: str = None) -> 'Safict':
+        storage = dcopy.deepcopy(self._storage)
+        result = Safict(storage, separator)
+
+        return result
+
     def __copy__(self):
         return self.copy()
 
@@ -115,4 +121,8 @@ class Safict(collections.Mapping):
             f"\tseparator={self.separator}\n" \
             f"\tlength={self.__len__()}\n" \
             f"\tstorage={storage}\n)"
+        return result
+
+    def __repr__(self) -> str:
+        result = self.__str__()
         return result
