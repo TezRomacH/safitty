@@ -37,6 +37,9 @@ class Safict(collections.Mapping):
         return _keys
 
     def get(self, *keys: Key, **get_params) -> Storage:
+        """
+        Getter for dict
+        """
         _keys = self._split_keys(keys)
         result: Storage = core.get(self._storage, *_keys, **get_params)
         return result
@@ -82,6 +85,11 @@ class Safict(collections.Mapping):
         )
 
     def copy(self) -> 'Safict':
+        """
+        Creates a new copy of Safict
+        Returns:
+            (Safict): new copy
+        """
         storage = dcopy.deepcopy(self._storage)
         result = Safict(storage, self.separator)
 
