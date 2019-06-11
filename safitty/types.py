@@ -1,4 +1,4 @@
-from typing import Union, List, Any, Type, Callable, Mapping
+from typing import Union, List, Any, Type, Callable, Mapping, Tuple
 
 
 class Relative:
@@ -54,5 +54,6 @@ class Strategy:
 
 Storage = Union[Mapping, List[Any]]
 Key = Union[str, int, bool, Relative]
+Keys = Union[Tuple[Key, ...], List[Key]]
 
 Transform = Union[Type, Callable]
