@@ -36,13 +36,19 @@ class Safict(collections.Mapping):
 
         return _keys
 
-    def get(self, *keys: Key, **get_params) -> 'Safict':
+    def get(self, *keys: Key, **get_params) -> Union['Safict', Any]:
         """
         Getter for dict
         """
         _keys = self._split_keys(keys)
         result: Storage = core.get(self._storage, *_keys, **get_params)
-        return Safict(result, separator=self.separator)
+        if isinstance(result, dict):
+            result = Safict(result, separator=self.separator)
+
+        return result
+
+    def item(self) -> Any:
+        return self._storage
 
     def to_dict(self) -> dict:
         return dcopy.deepcopy(self._storage)
