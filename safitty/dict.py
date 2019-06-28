@@ -36,13 +36,13 @@ class Safict(collections.Mapping):
 
         return _keys
 
-    def get(self, *keys: Key, **get_params) -> Union['Safict', Any]:
+    def get(self, *keys: Key, cast_dict: bool = True, **get_params) -> Union['Safict', Any]:
         """
         Getter for dict
         """
         _keys = self._split_keys(keys)
         result: Storage = core.get(self._storage, *_keys, **get_params)
-        if isinstance(result, dict):
+        if isinstance(result, dict) and cast_dict:
             result = Safict(result, separator=self.separator)
 
         return result
