@@ -60,6 +60,27 @@ OrderedLoader.add_constructor(
 )
 
 
+def is_path_readable(path: Union[Path, str]) -> bool:
+    """
+    Check a path to be a safitty-readable
+
+    Args:
+        path (Union[Path, str]): path to file
+
+    Returns:
+        bool: Can be read with ``safitty.load``
+    """
+    if isinstance(path, str):
+        _path = Path(path)
+    else:
+        _path = path
+
+    if not _path.exists():
+        return False
+
+    return _path.suffix in [".json", ".yml", ".yaml"]
+
+
 def load(
         path: Union[str, Path],
         ordered: bool = False,
