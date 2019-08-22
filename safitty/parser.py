@@ -60,6 +60,19 @@ OrderedLoader.add_constructor(
 )
 
 
+def is_file_supported(path: Union[Path, str]) -> bool:
+    """
+    Check a path to be supported by safitty (only YAML or JSON)
+
+    Args:
+        path (Union[Path, str]): path to file
+
+    Returns:
+        bool: File is YAML or JSON
+    """
+    return Path(path).suffix in [".json", ".yml", ".yaml"]
+
+
 def is_path_readable(path: Union[Path, str]) -> bool:
     """
     Check a path to be a safitty-readable
@@ -70,15 +83,8 @@ def is_path_readable(path: Union[Path, str]) -> bool:
     Returns:
         bool: Can be read with ``safitty.load``
     """
-    if isinstance(path, str):
-        _path = Path(path)
-    else:
-        _path = path
-
-    if not _path.exists():
-        return False
-
-    return _path.suffix in [".json", ".yml", ".yaml"]
+    path = Path(path)
+    return path.exists() and is_file_supported(path)
 
 
 def load(
@@ -98,27 +104,23 @@ def load(
     Examples:
         >>> load(path="./config.yml", ordered=True)
     """
-    if isinstance(path, str):
-        _path = Path(path)
-    else:
-        _path = path
+    path = Path(path)
 
-    ext = _path.suffix
-    if not _path.exists():
+    if not path.exists():
         raise Exception(f"Path '{path}' doesn't exist!")
 
-    if ext not in [".json", ".yml", ".yaml"]:
-        raise Exception(f"Unknown file format '{ext}'")
+    if not is_file_supported(path):
+        raise Exception(f"Unknown file format '{path.suffix}'")
 
     storage = None
-    with _path.open(encoding=encoding) as stream:
-        if ext == ".json":
+    with path.open(encoding=encoding) as stream:
+        if path.suffix == ".json":
             object_pairs_hook = OrderedDict if ordered else None
             file = "\n".join(stream.readlines())
             if file != "":
                 storage = json.loads(file, object_pairs_hook=object_pairs_hook)
 
-        elif ext in [".yml", ".yaml"]:
+        elif path.suffix in [".yml", ".yaml"]:
             loader = OrderedLoader if ordered else yaml.Loader
             storage = yaml.load(stream, loader)
 
@@ -145,22 +147,18 @@ def save(
             characters are escaped in JSON strings.
         indent (int): Used for JSON
     """
-    if isinstance(path, str):
-        _path = Path(path)
-    else:
-        _path = path
+    path = Path(path)
 
-    ext = _path.suffix
-    if ext not in [".json", ".yml", ".yaml"]:
-        raise Exception(f"Unknown file format '{ext}'")
+    if not is_file_supported(path):
+        raise Exception(f"Unknown file format '{path.suffix}'")
 
-    with _path.open(encoding=encoding, mode="w") as stream:
-        if ext == ".json":
+    with path.open(encoding=encoding, mode="w") as stream:
+        if path.suffix == ".json":
             json.dump(
                 storage, stream,
                 indent=indent, ensure_ascii=ensure_ascii
             )
-        elif ext in [".yml", ".yaml"]:
+        elif path.suffix in [".yml", ".yaml"]:
             yaml.dump(storage, stream)
 
 
