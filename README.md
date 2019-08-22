@@ -7,9 +7,9 @@
 [![Downloads](https://img.shields.io/pypi/dm/safitty.svg?style=flat)](https://pypi.org/project/safitty/)
 [![License](https://img.shields.io/github/license/TezRomacH/safitty.svg)](LICENSE)
 
-[![Telegram](https://raw.githubusercontent.com/catalyst-team/catalyst-pics/master/third_party_pics/telegram.svg)](https://t.me/catalyst_team)
+[![Telegram](./pics/telegram.svg)](https://t.me/catalyst_team)
 [![Gitter](https://badges.gitter.im/catalyst-team/community.svg)](https://gitter.im/catalyst-team/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Slack](https://raw.githubusercontent.com/catalyst-team/catalyst-pics/master/third_party_pics/slack.svg)](https://opendatascience.slack.com/messages/CGK4KQBHD)
+[![Slack](./pics/slack.svg)](https://opendatascience.slack.com/messages/CGK4KQBHD)
 [![Donate](https://raw.githubusercontent.com/catalyst-team/catalyst-pics/master/third_party_pics/patreon.png)](https://www.patreon.com/catalyst_team)
 
 </div>
