@@ -12,10 +12,10 @@
 [![Slack](./pics/slack.svg)](https://opendatascience.slack.com/messages/CGK4KQBHD)
 [![Donate](https://raw.githubusercontent.com/catalyst-team/catalyst-pics/master/third_party_pics/patreon.png)](https://www.patreon.com/catalyst_team)
 
-</div>
+**Safitty** is a wrapper on `JSON/YAML` configs for Python.
+Designed with a focus on safe data reading and writing for deep-nested dictionaries and lists.
 
-Safitty is a wrapper on JSON/YAML configs for Python.
-Designed with a focus on the safe `get`/`set` operations for deep-nested dictionaries and lists.
+</div>
 
 ## Installation
 ```bash
