@@ -5,6 +5,7 @@
 [![Build Status](https://travis-ci.com/catalyst-team/safitty.svg?branch=master)](https://travis-ci.com/catalyst-team/safitty)
 [![Pypi version](https://img.shields.io/pypi/v/safitty.svg?colorB=blue)](https://pypi.org/project/safitty/)
 [![Downloads](https://img.shields.io/pypi/dm/safitty.svg?style=flat)](https://pypi.org/project/safitty/)
+[![Github contributors](https://img.shields.io/github/contributors/catalyst-team/safitty.svg?logo=github&logoColor=white)](https://github.com/catalyst-team/safitty/graphs/contributors)
 [![License](https://img.shields.io/github/license/TezRomacH/safitty.svg)](LICENSE)
 
 [![Telegram](./pics/telegram.svg)](https://t.me/catalyst_team)
