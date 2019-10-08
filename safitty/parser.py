@@ -113,7 +113,7 @@ def load(
         raise Exception(f"Path '{path}' doesn't exist!")
 
     if data_format is not None:
-        suffix = data_format
+        suffix = data_format.lower()
         if not suffix.startswith("."):
             suffix = f".{suffix}"
     else:
