@@ -114,6 +114,8 @@ def load(
 
     if data_format is not None:
         suffix = data_format
+        if not suffix.startswith("."):
+            suffix = f".{suffix}"
     else:
         suffix = path.suffix
 

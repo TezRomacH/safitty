@@ -68,16 +68,23 @@ class Safict(collections.Mapping):
     @staticmethod
     def load(
         path: Union[str, Path],
+        data_format: str = None,
         ordered: bool = False,
         encoding: str = "utf-8"
     ) -> 'Safict':
-        result: Storage = parser.load(path, ordered=ordered, encoding=encoding)
+        result: Storage = parser.load(
+            path,
+            ordered=ordered,
+            data_format=data_format,
+            encoding=encoding
+        )
 
         return Safict(result)
 
     def save(
         self,
         path: Union[str, Path],
+        data_format: str = None,
         encoding: str = "utf-8",
         ensure_ascii: bool = False,
         indent: int = 2,
@@ -85,6 +92,7 @@ class Safict(collections.Mapping):
         parser.save(
             self._storage,
             path=path,
+            data_format=data_format,
             encoding=encoding,
             ensure_ascii=ensure_ascii,
             indent=indent,
