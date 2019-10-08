@@ -116,8 +116,9 @@ def load(
         suffix = data_format
     else:
         suffix = path.suffix
-    assert is_file_supported(suffix), \
-        f"Unknown file format '{suffix}'"
+
+    if not is_file_supported(suffix):
+        raise ValueError(f"Unknown file format '{suffix}'")
 
     storage = None
     with path.open(encoding=encoding) as stream:
@@ -163,8 +164,9 @@ def save(
         suffix = data_format
     else:
         suffix = path.suffix
-    assert is_file_supported(suffix), \
-        f"Unknown file format '{suffix}'"
+
+    if not is_file_supported(suffix):
+        raise ValueError(f"Unknown file format '{suffix}'")
 
     with path.open(encoding=encoding, mode="w") as stream:
         if suffix == ".json":
