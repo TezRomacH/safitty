@@ -60,17 +60,17 @@ OrderedLoader.add_constructor(
 )
 
 
-def is_file_supported(path: Union[Path, str]) -> bool:
+def is_file_supported(suffix: str) -> bool:
     """
     Check a path to be supported by safitty (only YAML or JSON)
 
     Args:
-        path (Union[Path, str]): path to file
+        suffix (str): path extension
 
     Returns:
         bool: File is YAML or JSON
     """
-    return Path(path).suffix in [".json", ".yml", ".yaml"]
+    return suffix in [".json", ".yml", ".yaml"]
 
 
 def is_path_readable(path: Union[Path, str]) -> bool:
@@ -84,18 +84,21 @@ def is_path_readable(path: Union[Path, str]) -> bool:
         bool: Can be read with ``safitty.load``
     """
     path = Path(path)
-    return path.exists() and is_file_supported(path)
+    return path.exists() and is_file_supported(path.suffix)
 
 
 def load(
-        path: Union[str, Path],
-        ordered: bool = False,
-        encoding: str = "utf-8"
+    path: Union[str, Path],
+    ordered: bool = False,
+    data_format: str = None,
+    encoding: str = "utf-8"
 ) -> Storage:
     """Loads config by giving path. Supports YAML and JSON files.
     Args:
         path (str): path to config file (YAML or JSON)
         ordered (bool): if true the config will be loaded as ``OrderedDict``
+        data_format (str): ``yaml``, ``yml`` or ``json``. If not specified,
+            safitty looks at ``path.suffix``
         encoding (str): encoding to read the config
     Returns:
         (Storage): Config
@@ -109,18 +112,25 @@ def load(
     if not path.exists():
         raise Exception(f"Path '{path}' doesn't exist!")
 
-    if not is_file_supported(path):
-        raise Exception(f"Unknown file format '{path.suffix}'")
+    if data_format is not None:
+        suffix = data_format.lower()
+        if not suffix.startswith("."):
+            suffix = f".{suffix}"
+    else:
+        suffix = path.suffix
+
+    if not is_file_supported(suffix):
+        raise ValueError(f"Unknown file format '{suffix}'")
 
     storage = None
     with path.open(encoding=encoding) as stream:
-        if path.suffix == ".json":
+        if suffix == ".json":
             object_pairs_hook = OrderedDict if ordered else None
             file = "\n".join(stream.readlines())
             if file != "":
                 storage = json.loads(file, object_pairs_hook=object_pairs_hook)
 
-        elif path.suffix in [".yml", ".yaml"]:
+        elif suffix in [".yml", ".yaml"]:
             loader = OrderedLoader if ordered else yaml.Loader
             storage = yaml.load(stream, loader)
 
@@ -133,6 +143,7 @@ def load(
 def save(
     storage: Storage,
     path: Union[str, Path],
+    data_format: str = None,
     encoding: str = "utf-8",
     ensure_ascii: bool = False,
     indent: int = 2,
@@ -142,6 +153,8 @@ def save(
     Args:
         storage (Storage): config to save
         path (Union[str, Path]): path to save
+        data_format (str): ``yaml``, ``yml`` or ``json``. If not specified,
+            safitty looks at ``path.suffix``
         encoding (str): Encoding to write file. Default is ``utf-8``
         ensure_ascii (bool): Used for JSON, if True non-ASCII
             characters are escaped in JSON strings.
@@ -149,16 +162,21 @@ def save(
     """
     path = Path(path)
 
-    if not is_file_supported(path):
-        raise Exception(f"Unknown file format '{path.suffix}'")
+    if data_format is not None:
+        suffix = data_format
+    else:
+        suffix = path.suffix
+
+    if not is_file_supported(suffix):
+        raise ValueError(f"Unknown file format '{suffix}'")
 
     with path.open(encoding=encoding, mode="w") as stream:
-        if path.suffix == ".json":
+        if suffix == ".json":
             json.dump(
                 storage, stream,
                 indent=indent, ensure_ascii=ensure_ascii
             )
-        elif path.suffix in [".yml", ".yaml"]:
+        elif suffix in [".yml", ".yaml"]:
             yaml.dump(storage, stream)
 
 
