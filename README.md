@@ -2,23 +2,16 @@
 
 ![Safitty logo](https://raw.githubusercontent.com/catalyst-team/catalyst-pics/master/pics/safitty_logo.png)
 
-[![Build Status](https://travis-ci.com/catalyst-team/safitty.svg?branch=master)](https://travis-ci.com/catalyst-team/safitty)
+[![Build Status](https://travis-ci.com/TezRomacH/safitty.svg?branch=master)](https://travis-ci.com/TezRomacH/safitty)
 [![Pypi version](https://img.shields.io/pypi/v/safitty.svg?colorB=blue)](https://pypi.org/project/safitty/)
 [![Downloads](https://img.shields.io/pypi/dm/safitty.svg?style=flat)](https://pypi.org/project/safitty/)
-[![Github contributors](https://img.shields.io/github/contributors/catalyst-team/safitty.svg?logo=github&logoColor=white)](https://github.com/catalyst-team/safitty/graphs/contributors)
+[![Github contributors](https://img.shields.io/github/contributors/TezRomacH/safitty.svg?logo=github&logoColor=white)](https://github.com/TezRomacH/safitty/graphs/contributors)
 [![License](https://img.shields.io/github/license/TezRomacH/safitty.svg)](LICENSE)
-
-[![Telegram](./pics/telegram.svg)](https://t.me/catalyst_team)
-[![Gitter](https://badges.gitter.im/catalyst-team/community.svg)](https://gitter.im/catalyst-team/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Slack](./pics/slack.svg)](https://opendatascience.slack.com/messages/CGK4KQBHD)
-[![Donate](https://raw.githubusercontent.com/catalyst-team/catalyst-pics/master/third_party_pics/patreon.png)](https://www.patreon.com/catalyst_team)
 
 **Safitty** is a wrapper on `JSON/YAML` configs for Python.
 Designed with a focus on safe data reading and writing for deep-nested dictionaries and lists.
 
 </div>
-
-Part of [Catalyst Ecosystem](https://docs.google.com/presentation/d/1D-yhVOg6OXzjo9K_-IS5vSHLPIUxp1PEkFGnpRcNCNU/edit?usp=sharing).
 
 ## Installation
 ```bash
